@@ -44,7 +44,8 @@ inputbar {
     children:         [ prompt, entry ];
 }
 prompt   { text-color: @mauve; }
-entry    { placeholder: "type to filter"; placeholder-color: @overlay0; cursor: text; }
+entry    { placeholder: "type to filter"; placeholder-color: @overlay0; cursor: text; text-color: @text; }
+case-indicator { text-color: @overlay0; }
 
 message  { background-color: @mantle; border-radius: 8px; padding: 8px 12px; }
 textbox  { text-color: @subtext; }
