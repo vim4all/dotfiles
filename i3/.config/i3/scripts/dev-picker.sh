@@ -19,7 +19,7 @@ choice=$(
     } | awk -v home="$HOME" 'NF && !seen[$0]++ && $0 != home { sub("^" home, "~"); print }'
   } | rofi -dmenu -i -p "dev-$MODE" \
       -mesg "Enter: open   ·   Alt+c: claude --continue   ·   Alt+v: VimCommander" \
-      -kb-custom-1 "Alt+c" -kb-custom-2 "Alt+v"
+      -kb-custom-1 "Alt+c" -kb-custom-2 "Alt+v" -no-show-icons
 )
 rc=$?
 CONT=()

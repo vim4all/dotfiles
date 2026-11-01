@@ -1,0 +1,60 @@
+/* rofi — Catppuccin Mocha, matches i3 / tmux / kitty */
+configuration {
+    font:              "JetBrainsMono Nerd Font 11";
+    show-icons:        true;
+    icon-theme:        "Papirus-Dark";
+    display-drun:      "  apps";
+    display-window:    "  windows";
+    drun-display-format: "{name}";
+}
+
+* {
+    base:     #1e1e2e;
+    mantle:   #181825;
+    surface0: #313244;
+    surface1: #45475a;
+    overlay0: #6c7086;
+    text:     #cdd6f4;
+    subtext:  #a6adc8;
+    mauve:    #cba6f7;
+    blue:     #89b4fa;
+
+    background-color: transparent;
+    text-color:       @text;
+    border-color:     @mauve;
+}
+
+window {
+    location:         center;
+    anchor:           center;
+    width:            42%;
+    background-color: @base;
+    border:           2px;
+    border-radius:    10px;
+    padding:          14px;
+}
+
+mainbox  { spacing: 10px; children: [ inputbar, message, listview ]; }
+
+inputbar {
+    background-color: @mantle;
+    border-radius:    8px;
+    padding:          10px 12px;
+    spacing:          10px;
+    children:         [ prompt, entry ];
+}
+prompt   { text-color: @mauve; }
+entry    { placeholder: "type to filter"; placeholder-color: @overlay0; cursor: text; }
+
+message  { background-color: @mantle; border-radius: 8px; padding: 8px 12px; }
+textbox  { text-color: @subtext; }
+
+listview { lines: 9; scrollbar: false; spacing: 2px; fixed-height: false; }
+element  { padding: 7px 12px; border-radius: 6px; spacing: 10px; }
+element normal.normal, element alternate.normal,
+element normal.active, element alternate.active { background-color: transparent; text-color: @text; }
+element normal.urgent, element alternate.urgent  { background-color: transparent; text-color: #f38ba8; }
+element selected.normal, element selected.active { background-color: @surface0; text-color: @mauve; }
+element selected.urgent { background-color: @surface0; text-color: #f38ba8; }
+element-text, element-icon { background-color: inherit; text-color: inherit; vertical-align: 0.5; }
+element-icon { size: 1.2em; }

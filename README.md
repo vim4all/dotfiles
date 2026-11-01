@@ -7,7 +7,10 @@ Catppuccin Mocha everywhere. Ubuntu 22.04 on a ThinkPad.
 Managed with [GNU Stow](https://www.gnu.org/software/stow/). nvim is a git submodule
 ([Neovim_lua_config](https://github.com/vim4all/Neovim_lua_config)).
 
+![A dev-lite workspace: Claude Code reviewing a change, git log in the shell below, VimCommander on the right](docs/screenshots/workspace.png)
+
 - [Quick start](#quick-start)
+- [Screenshots](#screenshots)
 - [How it fits together](#how-it-fits-together)
 - [Cheat sheet](#cheat-sheet): [i3](#i3--super) · [project picker](#project-picker) · [tmux](#tmux--prefix-ctrla) · [dev workspaces](#dev-workspaces) · [Claude](#claude-code) · [kitty](#kitty) · [VimCommander](#vimcommander) · [Obsidian](#obsidian) · [bash](#bash) · [nvim](#nvim--leader-space)
 - [Managing the dotfiles](#managing-the-dotfiles)
@@ -34,6 +37,27 @@ Then open tmux and press `Ctrl+a` `I` to install the tmux plugins, and log into 
 It also creates the [local files](#local-never-committed) that are not in this public repo.
 
 `install.sh` never overwrites a real file: if one is in the way it lists it and stops.
+
+---
+
+## Screenshots
+
+<table>
+<tr>
+<td width="50%"><img src="docs/screenshots/project-picker.png" alt="rofi project picker"><br>
+<sub><b><code>Super+P</code> project picker</b>: running sessions and recent projects; <code>Alt+C</code> continues Claude, <code>Alt+V</code> opens VimCommander</sub></td>
+<td width="50%"><img src="docs/screenshots/dev-lite.png" alt="dev-lite tmux workspace"><br>
+<sub><b>dev-lite</b>: Claude Code on top, a shell below, tmux and Claude status lines</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/lazygit-popup.png" alt="lazygit popup"><br>
+<sub><b><code>Alt+G</code></b>: lazygit in a popup over the session, on the pane's repo</sub></td>
+<td><img src="docs/screenshots/file-picker.png" alt="fzf file picker popup"><br>
+<sub><b><code>Ctrl+a f</code></b>: fuzzy-pick a file with a preview, opens in the editor</sub></td>
+</tr>
+</table>
+
+The screenshots come from a throwaway demo home with made-up projects.
 
 ---
 
@@ -264,8 +288,8 @@ flowchart LR
 | see what changed | `cd ~/dotfiles && git status` |
 | save | `git add -A && git commit -m "…" && git push` |
 | update another machine | `git pull --recurse-submodules` |
-| add a new config | `mkdir -p rofi/.config && mv ~/.config/rofi rofi/.config/ && stow rofi` |
-| unlink a package | `stow -D rofi` |
+| add a new config | `mkdir -p btop/.config && mv ~/.config/btop btop/.config/ && stow btop` |
+| unlink a package | `stow -D btop` |
 | relink after a program replaced a link with a file | copy its changes into the repo, delete the file, `stow -R <package>` |
 
 A new package also goes into `PACKAGES` in `install.sh` and the table below.
@@ -302,6 +326,7 @@ git submodule update --remote nvim/.config/nvim     # pull the newest nvim confi
 | `i3status` | `.config/i3status/` | bar blocks |
 | `dunst` | `.config/dunst/` | notifications |
 | `picom` | `.config/picom/` | compositor |
+| `rofi` | `.config/rofi/` | launcher and picker theme |
 | `kitty` | `.config/kitty/` | terminal |
 | `tmux` | `.config/tmux/`, `.tmux.conf` | tmux config, file picker script |
 | `tmux_workspaces` | `.config/tmux_workspaces/` | dev workspace launchers, Pomodoro |
