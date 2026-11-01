@@ -1,0 +1,68 @@
+# i3status config — Catppuccin Mocha
+
+general {
+    colors      = true
+    interval    = 2
+    color_good      = "#a6e3a1"
+    color_degraded  = "#f9e2af"
+    color_bad       = "#f38ba8"
+    color_separator = "#6c7086"
+    separator = " "
+    output_format = i3bar
+}
+
+order += "wireless wlp3s0"
+order += "ethernet enp0s25"
+order += "battery BAT0"
+order += "memory"
+order += "cpu_usage"
+order += "volume master"
+order += "tztime local"
+
+wireless wlp3s0 {
+    format_up   = "󰤨 %essid %quality"
+    format_down = "󰤭 off"
+}
+
+ethernet enp0s25 {
+    format_up   = "󰌘 %ip"
+    format_down = "󰌘 off"
+}
+
+battery BAT0 {
+    format      = "%status %percentage %remaining"
+    format_down = "󰂑 n/a"
+    status_chr  = "󰂄"
+    status_bat  = "󰁽"
+    status_unk  = "󰂑"
+    status_full = "󰁹"
+    path        = "/sys/class/power_supply/BAT%d/uevent"
+    low_threshold = 10
+    threshold_type = percentage
+    integer_battery_capacity = true
+    last_full_capacity = true
+}
+
+memory {
+    format            = "󰍛 %used/%total"
+    threshold_degraded = "1G"
+    threshold_critical = "256M"
+}
+
+cpu_usage {
+    format         = "󰻠 %usage"
+    max_threshold  = 80
+    degraded_threshold = 40
+}
+
+volume master {
+    format       = "󰕾 %volume"
+    format_muted = "󰝟 muted"
+    device       = "default"
+    mixer        = "Master"
+    mixer_idx    = 0
+}
+
+tztime local {
+    format = "󰥔 %a %Y-%m-%d  %H:%M:%S"
+}

@@ -1,0 +1,246 @@
+# ╔══════════════════════════════════════════════════════════╗
+# ║           i3 config — Catppuccin Mocha                   ║
+# ╚══════════════════════════════════════════════════════════╝
+
+set $mod Mod4
+
+# ── Catppuccin Mocha Palette ──────────────────────────────────────────────────
+set $rosewater #f5e0dc
+set $flamingo  #f2cdcd
+set $pink      #f5c2e7
+set $mauve     #cba6f7
+set $red       #f38ba8
+set $maroon    #eba0ac
+set $peach     #fab387
+set $yellow    #f9e2af
+set $green     #a6e3a1
+set $teal      #94e2d5
+set $sky       #89dceb
+set $sapphire  #74c7ec
+set $blue      #89b4fa
+set $lavender  #b4befe
+set $text      #cdd6f4
+set $subtext1  #bac2de
+set $subtext0  #a6adc8
+set $overlay2  #9399b2
+set $overlay1  #7f849c
+set $overlay0  #6c7086
+set $surface2  #585b70
+set $surface1  #45475a
+set $surface0  #313244
+set $base      #1e1e2e
+set $mantle    #181825
+set $crust     #11111b
+
+# ── Font ──────────────────────────────────────────────────────────────────────
+font pango:JetBrainsMono Nerd Font 10
+
+# ── Window Colors ─────────────────────────────────────────────────────────────
+#                         border     background  text       indicator  child_border
+client.focused            $mauve     $base       $text      $mauve     $mauve
+client.focused_inactive   $surface1  $base       $subtext1  $overlay0  $surface1
+client.unfocused          $surface0  $base       $overlay1  $surface0  $surface0
+client.urgent             $red       $red        $base      $red       $red
+client.placeholder        $surface0  $base       $overlay1  $overlay0  $surface0
+client.background         $base
+
+# ── Layout & Gaps ─────────────────────────────────────────────────────────────
+gaps inner 4
+gaps outer 4
+smart_gaps on
+smart_borders on
+
+default_border pixel 4
+default_floating_border pixel 4
+hide_edge_borders smart
+
+# ── Startup ───────────────────────────────────────────────────────────────────
+exec --no-startup-id setxkbmap us,ua -option grp:alt_shift_toggle
+exec --no-startup-id dex --autostart --environment i3
+exec --no-startup-id ~/.config/i3/scripts/monitors.sh
+# Lock after 10 min idle (X screensaver → xss-lock → i3lock) and on suspend
+exec --no-startup-id xset s 600 600
+exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --color=1e1e2e --nofork
+exec --no-startup-id nm-applet
+exec --no-startup-id dunst
+exec --no-startup-id sh -c '[ "$DISPLAY" = ":1" ] || picom --experimental-backends --daemon'
+exec_always --no-startup-id feh --bg-scale ~/Pictures/duesenberg.jpg
+
+# ── Mouse ─────────────────────────────────────────────────────────────────────
+floating_modifier $mod
+tiling_drag modifier titlebar
+focus_follows_mouse no
+
+# ── Workspaces ────────────────────────────────────────────────────────────────
+set $ws1  "1"
+set $ws2  "2"
+set $ws3  "3"
+set $ws4  "4"
+set $ws5  "5"
+set $ws6  "6"
+set $ws7  "7"
+set $ws8  "8"
+set $ws9  "9"
+set $ws10 "10"
+
+# ── Applications ──────────────────────────────────────────────────────────────
+bindsym $mod+Return  exec --no-startup-id ~/.config/i3/scripts/term.sh
+bindsym $mod+Shift+q kill
+bindsym $mod+d       exec --no-startup-id rofi -show drun
+bindsym $mod+Tab     exec --no-startup-id rofi -show window
+
+# Project picker → tmux dev workspace (dev-lite default / dev-claude full layout)
+# Running sessions are listed first; Alt+c in the picker = claude --continue
+bindsym $mod+p       exec --no-startup-id ~/.config/i3/scripts/dev-picker.sh lite
+bindsym $mod+Shift+p exec --no-startup-id ~/.config/i3/scripts/dev-picker.sh claude
+
+# Obsidian as a scratchpad overlay + quick capture to 99_Input/Inbox.md
+for_window [class="obsidian"] move scratchpad, resize set 85 ppt 85 ppt, move position center
+bindsym $mod+o exec --no-startup-id ~/.config/i3/scripts/obsidian-toggle.py
+bindsym $mod+n exec --no-startup-id ~/.config/i3/scripts/quick-capture.sh
+
+# VimCommander (two-pane file manager)
+bindsym $mod+c exec --no-startup-id ~/.local/bin/vimcommander
+
+bindsym $mod+Shift+x exec i3lock --color=1e1e2e
+bindsym $mod+F8       exec --no-startup-id ~/.config/i3/scripts/rofi-bluetooth.sh
+bindsym $mod+grave    exec --no-startup-id ~/.config/i3/scripts/toggle-kbd.py
+bindsym Print            exec --no-startup-id flameshot gui
+bindsym $mod+Print       exec --no-startup-id flameshot screen
+
+# ── Focus ─────────────────────────────────────────────────────────────────────
+bindsym $mod+h     focus left
+bindsym $mod+j     focus down
+bindsym $mod+k     focus up
+bindsym $mod+l     focus right
+
+bindsym $mod+Left  focus left
+bindsym $mod+Down  focus down
+bindsym $mod+Up    focus up
+bindsym $mod+Right focus right
+
+# ── Move ──────────────────────────────────────────────────────────────────────
+bindsym $mod+Shift+h     move left
+bindsym $mod+Shift+j     move down
+bindsym $mod+Shift+k     move up
+bindsym $mod+Shift+l     move right
+
+bindsym $mod+Shift+Left  move left
+bindsym $mod+Shift+Down  move down
+bindsym $mod+Shift+Up    move up
+bindsym $mod+Shift+Right move right
+
+# ── Splits ────────────────────────────────────────────────────────────────────
+bindsym $mod+b split h
+bindsym $mod+v split v
+
+# ── Layout ────────────────────────────────────────────────────────────────────
+bindsym $mod+f         fullscreen toggle
+bindsym $mod+s         layout stacking
+bindsym $mod+w         layout tabbed
+bindsym $mod+e         layout toggle split
+bindsym $mod+Shift+space floating toggle
+bindsym $mod+space     focus mode_toggle
+bindsym $mod+a         focus parent
+
+# ── Workspace Switching ───────────────────────────────────────────────────────
+bindsym $mod+1 workspace number $ws1
+bindsym $mod+2 workspace number $ws2
+bindsym $mod+3 workspace number $ws3
+bindsym $mod+4 workspace number $ws4
+bindsym $mod+5 workspace number $ws5
+bindsym $mod+6 workspace number $ws6
+bindsym $mod+7 workspace number $ws7
+bindsym $mod+8 workspace number $ws8
+bindsym $mod+9 workspace number $ws9
+bindsym $mod+0 workspace number $ws10
+
+# ── Move to Workspace ─────────────────────────────────────────────────────────
+bindsym $mod+Shift+1 move container to workspace number $ws1
+bindsym $mod+Shift+2 move container to workspace number $ws2
+bindsym $mod+Shift+3 move container to workspace number $ws3
+bindsym $mod+Shift+4 move container to workspace number $ws4
+bindsym $mod+Shift+5 move container to workspace number $ws5
+bindsym $mod+Shift+6 move container to workspace number $ws6
+bindsym $mod+Shift+7 move container to workspace number $ws7
+bindsym $mod+Shift+8 move container to workspace number $ws8
+bindsym $mod+Shift+9 move container to workspace number $ws9
+bindsym $mod+Shift+0 move container to workspace number $ws10
+
+# ── Brightness ────────────────────────────────────────────────────────────────
+bindsym XF86MonBrightnessUp   exec --no-startup-id xbacklight -inc 5
+bindsym XF86MonBrightnessDown exec --no-startup-id xbacklight -dec 5
+
+# ── Volume ────────────────────────────────────────────────────────────────────
+set $refresh_i3status killall -SIGUSR1 i3status
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@   +5%    && $refresh_i3status
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@   -5%    && $refresh_i3status
+bindsym XF86AudioMute        exec --no-startup-id pactl set-sink-mute   @DEFAULT_SINK@   toggle && $refresh_i3status
+bindsym XF86AudioMicMute     exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
+
+# ── Scratchpad ────────────────────────────────────────────────────────────────
+bindsym $mod+minus       scratchpad show
+bindsym $mod+Shift+minus move scratchpad
+
+# ── i3 Control ────────────────────────────────────────────────────────────────
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+r restart
+bindsym $mod+Shift+e exec "i3-nagbar -t warning \
+    -m 'Exit i3 and end your X session?' \
+    -B 'Yes, exit i3' 'i3-msg exit'"
+
+# ── Resize Mode ───────────────────────────────────────────────────────────────
+mode "  resize  " {
+    bindsym h resize shrink width  10 px or 10 ppt
+    bindsym j resize grow   height 10 px or 10 ppt
+    bindsym k resize shrink height 10 px or 10 ppt
+    bindsym l resize grow   width  10 px or 10 ppt
+
+    bindsym Left  resize shrink width  10 px or 10 ppt
+    bindsym Down  resize grow   height 10 px or 10 ppt
+    bindsym Up    resize shrink height 10 px or 10 ppt
+    bindsym Right resize grow   width  10 px or 10 ppt
+
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+    bindsym $mod+r mode "default"
+}
+bindsym $mod+r mode "  resize  "
+
+# ── Bar ───────────────────────────────────────────────────────────────────────
+bar {
+    status_command ~/.config/i3/scripts/i3status-bt.py
+    position top
+    tray_output primary
+    separator_symbol "  |  "
+
+    font pango:JetBrainsMono Nerd Font 10
+
+    colors {
+        background         $mantle
+        statusline         $text
+        separator          $overlay0
+
+        #                    border     background  text
+        focused_workspace    $mauve     $mauve      $base
+        active_workspace     $surface1  $surface1   $text
+        inactive_workspace   $mantle    $mantle     $overlay1
+        urgent_workspace     $red       $red        $base
+        binding_mode         $peach     $peach      $base
+    }
+}
+exec --no-startup-id autorandr --change
+
+# Google drive mount config
+exec --no-startup-id rclone mount gdrive: ~/GoogleDrive --vfs-cache-mode writes --daemon
+
+bindsym $mod+F9 exec fusermount -u ~/GoogleDrive
+bindsym $mod+F10 exec rclone mount gdrive: ~/GoogleDrive --vfs-cache-mode writes --daemon
+
+# --- VNC fallbacks (Win key is grabbed by the VNC client's host) ---
+bindsym Ctrl+Mod1+Return exec --no-startup-id ~/.config/i3/scripts/term.sh
+bindsym Ctrl+Mod1+d      exec --no-startup-id rofi -show drun
+bindsym Ctrl+Mod1+q      kill
+bindsym Ctrl+Mod1+p      exec --no-startup-id ~/.config/i3/scripts/dev-picker.sh lite
+bindsym Ctrl+Mod1+Shift+p exec --no-startup-id ~/.config/i3/scripts/dev-picker.sh claude
+bindsym Ctrl+Mod1+o      exec --no-startup-id ~/.config/i3/scripts/obsidian-toggle.py

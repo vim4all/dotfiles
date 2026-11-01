@@ -1,0 +1,12 @@
+# backups and caches
+*.bak
+*.bak.*
+*.bak-*
+__pycache__/
+*.pyc
+# per-project Claude permissions — machine-local, anywhere in the tree
+**/.claude/settings.local.json
+# VimCommander rewrites its config with session state (open folders, history);
+# the tracked template is config.example.json (install.sh creates config.json)
+vimcommander/.config/VimCommander/config.json
+vimcommander/.config/VimCommander/undo.json

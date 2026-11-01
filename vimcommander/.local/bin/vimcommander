@@ -1,0 +1,2 @@
+#!/bin/sh
+exec "$HOME/src/VimCommander/.venv/bin/python" "$HOME/src/VimCommander/main.py" "$@"

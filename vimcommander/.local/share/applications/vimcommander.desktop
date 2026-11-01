@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=VimCommander
+Comment=Vim-style two-pane file manager
+Exec=vimcommander
+Icon=system-file-manager
+Terminal=false
+Categories=Utility;FileManager;

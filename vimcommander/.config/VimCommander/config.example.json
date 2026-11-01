@@ -1,0 +1,153 @@
+{
+  "font": {
+    "family": "",
+    "size": 0
+  },
+  "monospace": {
+    "enabled": true,
+    "family": "JetBrainsMono Nerd Font",
+    "size": 0
+  },
+  "theme": "catppuccin-mocha",
+  "colors": {
+    "cursor": "#2f6fd0",
+    "cursor_text": "#ffffff",
+    "cursor_inactive": "#2f6fd04d",
+    "tagged": "#e53935",
+    "tagged_background": "#e5393526",
+    "search": "#ffc4005a",
+    "hidden": "#808080",
+    "folder": "",
+    "header_active": "#2f6fd0",
+    "header_active_text": "#ffffff",
+    "git_modified": "#d98e04",
+    "git_new": "#2ea043",
+    "git_conflict": "#ff4f8b",
+    "git_ignored": "#808080",
+    "linked_missing": "#a056e0",
+    "line_number": "",
+    "line_number_current": ""
+  },
+  "graph": {
+    "enabled": true,
+    "depth": 2,
+    "size_by": "size",
+    "mode": "sunburst",
+    "max_nodes": 400
+  },
+  "show_hidden": false,
+  "natural_sort": true,
+  "git": true,
+  "columns": false,
+  "thumbnail_size": 128,
+  "share": {
+    "port": 0,
+    "minutes": 15,
+    "upload": true
+  },
+  "player": {
+    "volume": 70,
+    "shuffle": false,
+    "repeat": "all",
+    "speed": 1.0
+  },
+  "rules": [],
+  "number": false,
+  "relativenumber": false,
+  "ignorecase": true,
+  "smartcase": true,
+  "hlsearch": true,
+  "wrapscan": true,
+  "clipboard": "",
+  "langmap": "cyrillic",
+  "vterm": {
+    "shell": "",
+    "follow": true
+  },
+  "which_key_delay": 500,
+  "timeoutlen": 1000,
+  "vimrc": "vimcommanderrc",
+  "sort": "name",
+  "date_format": "%Y-%m-%d %H:%M",
+  "confirm_trash": true,
+  "persistent_undo": true,
+  "queue_jobs": true,
+  "restore_panes": true,
+  "pane_ratio": 0.5,
+  "history_limit": 100,
+  "programs": {
+    "editor": "",
+    "editor_line": "code -g %f:%l",
+    "viewer": "",
+    "terminal": "@HOME@/.local/bin/kitty --directory %d",
+    "open_with": {},
+    "zoxide": "",
+    "git": "",
+    "shell": ""
+  },
+  "commands": {
+    "dev": "!@HOME@/.config/i3/scripts/term.sh -d %d bash @HOME@/.config/tmux_workspaces/dev_lite.sh %d",
+    "devc": "!@HOME@/.config/i3/scripts/term.sh -d %d bash @HOME@/.config/tmux_workspaces/dev_lite.sh -c %d",
+    "lg": "!@HOME@/.config/i3/scripts/term.sh -d %d lazygit",
+    "obs": "!xdg-open \"obsidian://open?path=$(python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.argv[1]))' %f)\" && sleep 1 && @HOME@/.config/i3/scripts/obsidian-toggle.py --show"
+  },
+  "keys": {
+    "normal": {
+      "<F9>": ":dev",
+      "<F10>": ":lg"
+    },
+    "visual": {}
+  },
+  "bar": [
+    {
+      "name": "Home",
+      "path": "@HOME@",
+      "args": "",
+      "icon": ""
+    },
+    {
+      "name": "Documents",
+      "path": "@HOME@/Documents",
+      "args": "",
+      "icon": ""
+    },
+    {
+      "name": "Downloads",
+      "path": "@HOME@/Downloads",
+      "args": "",
+      "icon": ""
+    },
+    {
+      "name": "Root",
+      "path": "/",
+      "args": "",
+      "icon": ""
+    },
+    {
+      "name": "wrk_dir",
+      "path": "@HOME@/wrk_dir",
+      "args": "",
+      "icon": ""
+    },
+    {
+      "name": "Vault",
+      "path": "@HOME@/Documents/RemoteKnowledgeBase",
+      "args": "",
+      "icon": ""
+    },
+    {
+      "name": "Terminal",
+      "path": "@HOME@/.local/bin/kitty",
+      "args": "--directory %d",
+      "icon": ""
+    },
+    {
+      "name": "Claude",
+      "path": "@HOME@/.config/i3/scripts/term.sh",
+      "args": "-d %d bash @HOME@/.config/tmux_workspaces/dev_lite.sh %d",
+      "icon": ""
+    }
+  ],
+  "bar_labels": true,
+  "bar_visible": true
+}
