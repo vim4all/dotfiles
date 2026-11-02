@@ -6,6 +6,8 @@ import sys
 import time
 import select
 import shutil
+import signal
+import subprocess
 import argparse
 from dataclasses import dataclass
 from typing import Optional
@@ -59,10 +61,18 @@ def fmt(seconds: int) -> str:
 
 
 # ── tmux status bar ────────────────────────────────────────────────────────────
-# The current phase is written (tmux-formatted) to STATUS_FILE for status-right.
-# It is rewritten at least once a second, so a stale mtime means pom isn't running.
-STATUS_FILE = os.path.expanduser("~/.cache/pom/status")
+# The current phase (tmux-formatted) is pushed into the global tmux user option
+# @pom, which status-right shows as #{@pom}. Setting an option redraws every
+# client, so tmux needs no polling script and status-interval can stay slow.
 _status_last = ("", 0.0)
+
+
+def _tmux(*args: str) -> None:
+    try:
+        subprocess.run(["tmux", *args], stdout=subprocess.DEVNULL,
+                       stderr=subprocess.DEVNULL, timeout=1)
+    except (OSError, subprocess.SubprocessError):
+        pass
 
 
 def write_status(text: str) -> None:
@@ -70,20 +80,12 @@ def write_status(text: str) -> None:
     now = time.monotonic()
     if text == _status_last[0] and now - _status_last[1] < 1.0:
         return
-    try:
-        os.makedirs(os.path.dirname(STATUS_FILE), exist_ok=True)
-        with open(STATUS_FILE, "w") as f:
-            f.write(text)
-        _status_last = (text, now)
-    except OSError:
-        pass
+    _tmux("set-option", "-g", "@pom", text + "  ")
+    _status_last = (text, now)
 
 
 def clear_status() -> None:
-    try:
-        os.remove(STATUS_FILE)
-    except OSError:
-        pass
+    _tmux("set-option", "-gu", "@pom")
 
 
 def read_key(timeout: float = 0.25) -> Optional[str]:
@@ -347,6 +349,10 @@ def countdown(
 
 # ── Entry point ────────────────────────────────────────────────────────────────
 def main() -> None:
+    # Killing the tmux "pom" session sends SIGHUP; exit via SystemExit so the
+    # finally-block clears @pom instead of leaving a stale timer in the bar.
+    for sig in (signal.SIGHUP, signal.SIGTERM):
+        signal.signal(sig, lambda *_: sys.exit(0))
     ap = argparse.ArgumentParser(
         prog="pom",
         description="Pomodoro timer — p pause · n skip · q quit",

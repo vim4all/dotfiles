@@ -183,6 +183,8 @@ alias dev-claude="bash $HOME/.config/tmux_workspaces/dev_claude.sh"
 alias dev-gemini="bash $HOME/.config/tmux_workspaces/dev_gemini.sh"
 alias dev-plain="bash $HOME/.config/tmux_workspaces/dev_plain.sh"
 alias dev-lite="bash $HOME/.config/tmux_workspaces/dev_lite.sh"
+# TigerVNC desktop :1 at 30 fps (FrameRate can't be changed at runtime; default 60)
+alias vnc-start='vncserver :1 -FrameRate 30'
 alias claude-notes='claude --add-dir ~/Documents/RemoteKnowledgeBase'   # Claude with Obsidian vault access
 
 # ── PATH ───────────────────────────────────────────────────────────────────────

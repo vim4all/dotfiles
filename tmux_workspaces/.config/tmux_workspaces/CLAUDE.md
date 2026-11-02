@@ -48,7 +48,7 @@ nvim restores `Session.vim` if present in the project directory, otherwise opens
 
 ## pom.py
 
-Standalone Python 3 Pomodoro timer — no dependencies beyond stdlib. Not part of the dev layouts: `~/.tmux.conf` binds `prefix + P` to a popup attached to a global `pom` session. `countdown()` writes the phase as a tmux-formatted string to `~/.cache/pom/status` at least once a second (`write_status()`); `pom-status.sh` prints it for `status-right` only if the file is ≤5s old. `main()` removes the file on exit.
+Standalone Python 3 Pomodoro timer — no dependencies beyond stdlib. Not part of the dev layouts: `~/.tmux.conf` binds `prefix + P` to a popup attached to a global `pom` session. `countdown()` pushes the phase as a tmux-formatted string into the global tmux user option `@pom` at least once a second (`write_status()` → `tmux set -g @pom`); `status-right` shows `#{@pom}`, so tmux runs no polling script and `status-interval` is 15s (clock only). `main()` unsets `@pom` on exit, including SIGHUP/SIGTERM (e.g. the `pom` session being killed).
 
 **Start screen** (interactive config before the first session):
 - `↑`/`↓` or `k`/`j` — move between settings

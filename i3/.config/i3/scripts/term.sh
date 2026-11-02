@@ -1,10 +1,24 @@
 #!/bin/bash
-# Open a terminal: kitty, falling back to gnome-terminal if kitty is missing or
-# fails to start (e.g. a VNC display without OpenGL 3.3).
+# Open a terminal.
+#   :0 (real GPU)    → kitty, falling back to gnome-terminal if it fails to start
+#   :1 (TigerVNC)    → gnome-terminal. There is no GPU there, so kitty renders
+#                      through llvmpipe (software OpenGL); for 8 s of streaming
+#                      output kitty cost ~27 CPU-s (~11 with LP_NUM_THREADS=1)
+#                      vs ~3 CPU-s for gnome-terminal's CPU renderer.
 #   term.sh [-d DIR] [CMD ARGS...]
 KITTY="$HOME/.local/bin/kitty"
 DIR=""
 if [ "$1" = "-d" ]; then DIR="$2"; shift 2; fi
+
+gterm() {
+  if [ $# -gt 0 ]; then
+    exec gnome-terminal ${DIR:+--working-directory="$DIR"} -- "$@"
+  else
+    exec gnome-terminal ${DIR:+--working-directory="$DIR"}
+  fi
+}
+
+[ "$DISPLAY" = ":1" ] && gterm "$@"
 
 if [ -x "$KITTY" ]; then
   start=$(date +%s)
@@ -15,8 +29,4 @@ if [ -x "$KITTY" ]; then
   notify-send -u low "term" "kitty failed to start — using gnome-terminal"
 fi
 
-if [ $# -gt 0 ]; then
-  exec gnome-terminal ${DIR:+--working-directory="$DIR"} -- "$@"
-else
-  exec gnome-terminal ${DIR:+--working-directory="$DIR"}
-fi
+gterm "$@"

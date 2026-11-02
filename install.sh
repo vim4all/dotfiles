@@ -66,4 +66,6 @@ if [ -f "$SNAP_DESKTOP" ] && [ -x "$HOME/.config/i3/scripts/firefox.sh" ]; then
     > ~/.local/share/applications/firefox_firefox.desktop
   echo "installed snap Firefox wrapper (VNC-safe)"
 fi
+# gnome-terminal is the VNC terminal (term.sh); give it kitty's font/theme
+"$HOME/.config/i3/scripts/gnome-terminal-setup.sh" || true
 echo "tmux plugins: open tmux and press prefix + I"

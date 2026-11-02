@@ -107,7 +107,7 @@ tmux restores every session and Claude continues its last conversation.
 
 | Key | Action |
 |---|---|
-| `Super+Enter` | terminal (kitty, falls back to gnome-terminal) |
+| `Super+Enter` | terminal (kitty; gnome-terminal on VNC `:1` or if kitty fails) |
 | `Super+D` / `Super+Tab` | app launcher / window switcher (rofi) |
 | `Super+P` / `Super+Shift+P` | project picker → **dev-lite** / dev-claude (full layout) |
 | `Super+O` | Obsidian overlay, show / hide |
