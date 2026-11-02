@@ -48,7 +48,6 @@ client.background         $base
 gaps inner 4
 gaps outer 4
 smart_gaps on
-smart_borders on
 
 default_border pixel 4
 default_floating_border pixel 4
@@ -63,7 +62,7 @@ exec --no-startup-id xset s 600 600
 exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --color=1e1e2e --nofork
 exec --no-startup-id nm-applet
 exec --no-startup-id dunst
-exec --no-startup-id sh -c '[ "$DISPLAY" = ":1" ] || picom --experimental-backends --daemon'
+exec --no-startup-id sh -c '[ "$DISPLAY" = ":1" ] || picom --daemon'
 exec_always --no-startup-id feh --bg-scale ~/Pictures/duesenberg.jpg
 
 # ── Mouse ─────────────────────────────────────────────────────────────────────
@@ -102,7 +101,7 @@ bindsym $mod+n exec --no-startup-id ~/.config/i3/scripts/quick-capture.sh
 # VimCommander (two-pane file manager)
 bindsym $mod+c exec --no-startup-id ~/.local/bin/vimcommander
 
-bindsym $mod+Shift+x exec i3lock --color=1e1e2e
+bindsym $mod+Shift+x exec --no-startup-id i3lock --color=1e1e2e
 bindsym $mod+F8       exec --no-startup-id ~/.config/i3/scripts/rofi-bluetooth.sh
 bindsym $mod+grave    exec --no-startup-id ~/.config/i3/scripts/toggle-kbd.py
 bindsym Print            exec --no-startup-id flameshot gui
@@ -229,13 +228,11 @@ bar {
         binding_mode         $peach     $peach      $base
     }
 }
-exec --no-startup-id autorandr --change
+# Google Drive (personal + optional shared drive; script clears stale mounts)
+exec --no-startup-id ~/.config/i3/scripts/mount-gdrive.sh
 
-# Google drive mount config
-exec --no-startup-id rclone mount gdrive: ~/GoogleDrive --vfs-cache-mode writes --daemon
-
-bindsym $mod+F9 exec fusermount -u ~/GoogleDrive
-bindsym $mod+F10 exec rclone mount gdrive: ~/GoogleDrive --vfs-cache-mode writes --daemon
+bindsym $mod+F9  exec --no-startup-id fusermount -u ~/GoogleDrive
+bindsym $mod+F10 exec --no-startup-id ~/.config/i3/scripts/mount-gdrive.sh
 
 # --- VNC fallbacks (Win key is grabbed by the VNC client's host) ---
 bindsym Ctrl+Mod1+Return exec --no-startup-id ~/.config/i3/scripts/term.sh

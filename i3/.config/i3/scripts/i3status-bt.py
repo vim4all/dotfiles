@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 import threading
+import time
 
 from Xlib import display as Xdisplay
 from Xlib.protocol import rq
@@ -66,25 +67,48 @@ def _xkb_group():
 
 # ── Status blocks ─────────────────────────────────────────────────────────────
 
+BT_TTL = 10          # seconds between bluetoothctl polls (i3status ticks every 2 s)
+_bt_cache = (0.0, None)
+
+
 def bt_block():
+    global _bt_cache
+    now = time.monotonic()
+    if _bt_cache[1] is not None and now - _bt_cache[0] < BT_TTL:
+        return _bt_cache[1]
+    block = _bt_query()
+    _bt_cache = (now, block)
+    return block
+
+
+_bus = None
+
+
+def _bt_query():
+    """One BlueZ GetManagedObjects call over D-Bus (no subprocesses).
+    bluetoothctl 5.64 (Ubuntu 22.04) has no `devices Connected`."""
+    global _bus
     try:
-        show = subprocess.check_output(
-            ["bluetoothctl", "show"], text=True, stderr=subprocess.DEVNULL
-        )
-        if "Powered: yes" not in show:
+        import dbus
+        if _bus is None:
+            _bus = dbus.SystemBus()
+        mgr = dbus.Interface(_bus.get_object("org.bluez", "/"),
+                             "org.freedesktop.DBus.ObjectManager")
+        objs = mgr.GetManagedObjects(timeout=2)
+
+        powered = any(ifs.get("org.bluez.Adapter1", {}).get("Powered")
+                      for ifs in objs.values())
+        if not powered:
             return {"name": "bluetooth", "full_text": "󰂲 bt", "color": "#6c7086"}
 
-        lines = subprocess.check_output(
-            ["bluetoothctl", "devices", "Connected"],
-            text=True, stderr=subprocess.DEVNULL,
-        ).strip().splitlines()
-        lines = [l for l in lines if l]
-
-        if lines:
-            name = lines[0].split(" ", 2)[-1]
-            return {"name": "bluetooth", "full_text": f"󰂱 {name}", "color": "#a6e3a1"}
+        for ifs in objs.values():
+            dev = ifs.get("org.bluez.Device1")
+            if dev and dev.get("Connected"):
+                name = str(dev.get("Alias") or dev.get("Name") or "?")
+                return {"name": "bluetooth", "full_text": f"󰂱 {name}", "color": "#a6e3a1"}
         return {"name": "bluetooth", "full_text": "󰂯 bt", "color": "#cdd6f4"}
     except Exception:
+        _bus = None  # reconnect next time (e.g. bluetoothd restarted)
         return {"name": "bluetooth", "full_text": "󰂲 bt", "color": "#f38ba8"}
 
 
@@ -108,6 +132,8 @@ def click_listener():
         try:
             ev = json.loads(line)
             if ev.get("name") == "bluetooth":
+                global _bt_cache
+                _bt_cache = (0.0, None)
                 subprocess.Popen(
                     [BT_SCRIPT],
                     stdout=subprocess.DEVNULL,

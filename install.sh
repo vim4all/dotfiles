@@ -56,4 +56,14 @@ if [ ! -f "$HOME/.gitconfig.local" ]; then
   printf '[user]\n\tname = %s\n\temail = %s\n' "$(whoami)" "you@example.com" > "$HOME/.gitconfig.local"
   echo "created ~/.gitconfig.local — put your git name and e-mail there"
 fi
+# Snap Firefox can't start from the VNC session (private D-Bus); route it through
+# i3/scripts/firefox.sh — via PATH and a launcher override (rofi, xdg-open)
+SNAP_DESKTOP=/var/lib/snapd/desktop/applications/firefox_firefox.desktop
+if [ -f "$SNAP_DESKTOP" ] && [ -x "$HOME/.config/i3/scripts/firefox.sh" ]; then
+  mkdir -p ~/.local/bin ~/.local/share/applications
+  ln -sfn "$HOME/.config/i3/scripts/firefox.sh" ~/.local/bin/firefox
+  sed "s#^Exec=/snap/bin/firefox#Exec=$HOME/.local/bin/firefox#" "$SNAP_DESKTOP" \
+    > ~/.local/share/applications/firefox_firefox.desktop
+  echo "installed snap Firefox wrapper (VNC-safe)"
+fi
 echo "tmux plugins: open tmux and press prefix + I"
