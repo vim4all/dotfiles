@@ -6,7 +6,7 @@
 set -euo pipefail
 cd "$(dirname "$(realpath "$0")")"
 
-PACKAGES=(bash git i3 i3status dunst picom rofi kitty tmux tmux_workspaces claude vimcommander nvim)
+PACKAGES=(bash git i3 i3status dunst picom rofi kitty tmux tmux_workspaces claude vimcommander vnc nvim)
 
 DEPS=0
 SEL=()

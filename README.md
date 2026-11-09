@@ -331,6 +331,7 @@ git submodule update --remote nvim/.config/nvim     # pull the newest nvim confi
 | `tmux_workspaces` | `.config/tmux_workspaces/` | dev workspace launchers, Pomodoro |
 | `claude` | `.claude/settings.json`, `statusline.py`, `hooks/notify.py` | Claude Code settings |
 | `vimcommander` | `.config/VimCommander/`, `.local/bin/vimcommander`, `.desktop` | VimCommander settings as `config.example.json`; `install.sh` makes `config.json` from it (app: [VimCommander](https://github.com/vim4all/VimCommander) in `~/src/VimCommander`) |
+| `vnc` | `.vnc/xstartup`, `.config/systemd/user/vncserver@.service` | TigerVNC session (i3) and a user unit to start it at boot: `systemctl --user enable --now vncserver@:1` + `loginctl enable-linger` |
 | `nvim` | `.config/nvim/` | submodule → Neovim_lua_config |
 
 ### Local, never committed
@@ -343,6 +344,7 @@ This repo is public, so anything personal lives next to it, not in it:
 | `~/.config/VimCommander/config.json` | VimCommander settings + session state (open folders, history) | `install.sh`, from `config.example.json` |
 | `~/.config/rclone/shared-drive.env` | optional shared Google Drive: `SHARED_DRIVE_ID`, `SHARED_MOUNT`, `SHARED_NAME` | you |
 | `~/.config/rclone/rclone.conf` | Google tokens | `rclone config` |
+| `~/.vnc/passwd` | VNC password | `vncpasswd` |
 | `~/.claude/.credentials.json`, `~/.claude.json`, history | Claude login and sessions | Claude Code |
 | `**/.claude/settings.local.json` | per-project Claude permissions | Claude Code (git-ignored) |
 

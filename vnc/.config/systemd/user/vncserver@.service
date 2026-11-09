@@ -1,0 +1,15 @@
+[Unit]
+Description=TigerVNC server on display %i
+After=network.target
+
+[Service]
+Type=simple
+ExecStartPre=-/usr/bin/vncserver -kill %i
+ExecStartPre=-/bin/sh -c 'n=$(echo %i | tr -d :); rm -f /tmp/.X$n-lock /tmp/.X11-unix/X$n'
+ExecStart=/usr/bin/vncserver %i -fg
+ExecStop=/usr/bin/vncserver -kill %i
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
