@@ -13,7 +13,7 @@ workspaces, Obsidian overlay. Reload after edits with `Super + Shift + C`.
 | `scripts/obsidian-toggle.py` | show/hide Obsidian as a centered scratchpad overlay |
 | `scripts/quick-capture.sh` | rofi prompt → append a line to `99_Input/Inbox.md` in the vault |
 | `scripts/i3status-bt.py` | bar status: i3status wrapper adding Bluetooth + layout blocks |
-| `scripts/monitors.sh` | xrandr layout VGA → DP-1-1 → LVDS-1 (left to right) at login |
+| `scripts/monitors.sh` | xrandr layout VGA → DP → LVDS (left to right) at login; links nouveau PRIME provider, detects output names |
 | `scripts/rofi-bluetooth.sh` | rofi Bluetooth menu |
 | `scripts/toggle-kbd.py` | toggle keyboard layout us ↔ ua (XKB) |
 | `scripts/mount-gdrive.sh` | rclone mount of `~/GoogleDrive`, plus an optional shared drive from `~/.config/rclone/shared-drive.env` |
