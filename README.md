@@ -120,6 +120,8 @@ tmux restores every session and Claude continues its last conversation.
 | `Super+Shift+Space` / `Super+Space` | floating toggle / focus tiling ↔ floating |
 | `Super+R` | resize mode (`HJKL`, `Esc` to leave) |
 | `Super+1…0` / `Super+Shift+1…0` | go to / move window to workspace |
+| `Super+Esc` | previous workspace (pressing `Super+N` again on the current one also goes back) |
+| `Super+Shift+M` | re-apply monitor layout (after plugging monitors in or out) |
 | `Super+Shift+Q` | close window |
 | `Super+Shift+X` | lock (also after 10 min idle and on suspend) |
 | `Super+F8` | Bluetooth menu |
@@ -131,6 +133,24 @@ tmux restores every session and Claude continues its last conversation.
 
 Over VNC (Super is taken by the client): `Ctrl+Alt+Enter` terminal · `Ctrl+Alt+D` launcher ·
 `Ctrl+Alt+Q` close · `Ctrl+Alt+P` / `Ctrl+Alt+Shift+P` picker · `Ctrl+Alt+O` Obsidian.
+
+### Workspaces
+
+Each workspace has a fixed job and monitor (VGA | DP main | laptop). Apps open on theirs automatically;
+with fewer screens (undocked, VNC) everything falls back to the one available.
+
+| Key | Workspace | Monitor | Auto-assigned |
+|---|---|---|---|
+| `Super+1` | `1: dev` | DP (main) | |
+| `Super+2` | `2: dev` | VGA | |
+| `Super+3` | `3: ref` | laptop | |
+| `Super+4` | `4: web` | DP | |
+| `Super+5` | `5: chat` | laptop | Telegram, Discord, Thunderbird (tabbed; Telegram + Discord start at login) |
+| `Super+6` | `6: media` | VGA | mpv, VLC, Spotify |
+| `Super+7` | `7: eda` | DP | KiCad, STM32CubeMX |
+| `Super+8…0` | spare | any | |
+
+Change the map in `i3/.config/i3/config` (`App → workspace` section); `xprop WM_CLASS` shows a window's class.
 
 ### Project picker
 

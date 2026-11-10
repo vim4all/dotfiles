@@ -64,6 +64,9 @@ exec --no-startup-id nm-applet
 exec --no-startup-id dunst
 exec --no-startup-id sh -c '[ "$DISPLAY" = ":1" ] || picom --daemon'
 exec_always --no-startup-id feh --bg-scale ~/Pictures/duesenberg.jpg
+# Chat apps start at login and land on 5: chat (not in the VNC session on :1)
+exec --no-startup-id sh -c '[ "$DISPLAY" = ":1" ] || telegram-desktop -startintray'
+exec --no-startup-id sh -c '[ "$DISPLAY" = ":1" ] || discord --start-minimized'
 
 # ── Mouse ─────────────────────────────────────────────────────────────────────
 floating_modifier $mod
@@ -71,16 +74,50 @@ tiling_drag modifier titlebar
 focus_follows_mouse no
 
 # ── Workspaces ────────────────────────────────────────────────────────────────
-set $ws1  "1"
-set $ws2  "2"
-set $ws3  "3"
-set $ws4  "4"
-set $ws5  "5"
-set $ws6  "6"
-set $ws7  "7"
+# Fixed map: 1-3 development, 4+ everything else. Win+N still works by number.
+set $ws1  "1: dev"
+set $ws2  "2: dev"
+set $ws3  "3: ref"
+set $ws4  "4: web"
+set $ws5  "5: chat"
+set $ws6  "6: media"
+set $ws7  "7: eda"
 set $ws8  "8"
 set $ws9  "9"
 set $ws10 "10"
+
+# Monitor per workspace: VGA | DP (main, 1440p) | laptop.
+# Each line lists fallbacks: output names shift when the Intel/NVIDIA cards
+# enumerate in a different order (LVDS-1 vs LVDS-2, VGA-1-2 vs VGA-1-1).
+# Outputs that aren't present are skipped, so undocked or over VNC
+# everything opens on the one screen.
+set $mon_main   DP-1-1 DP-1-2 DP-1-3 primary
+set $mon_left   VGA-1-1 VGA-1-2 DP-1-1 primary
+set $mon_laptop LVDS-1 LVDS-2 primary
+workspace $ws1 output $mon_main
+workspace $ws2 output $mon_left
+workspace $ws3 output $mon_laptop
+workspace $ws4 output $mon_main
+workspace $ws5 output $mon_laptop
+workspace $ws6 output $mon_left
+workspace $ws7 output $mon_main
+
+# Win+N on the workspace you're already on jumps back to the previous one
+workspace_auto_back_and_forth yes
+bindsym $mod+Escape workspace back_and_forth
+
+# ── App → workspace ───────────────────────────────────────────────────────────
+# Find a window's class with: xprop WM_CLASS (then click the window)
+# Firefox is used for both dev and personal browsing, so it isn't assigned.
+assign [class="(?i)^telegramdesktop$"]          number $ws5
+assign [class="(?i)^discord$"]                  number $ws5
+assign [class="(?i)^thunderbird"]               number $ws5
+for_window [workspace="^5: chat$"]              layout tabbed
+assign [class="(?i)^(mpv|vlc)$"]                number $ws6
+# Spotify sets its class after mapping, so assign misses it
+for_window [class="(?i)^spotify$"]              move container to workspace number $ws6
+assign [class="(?i)^(kicad|eeschema|pcbnew|gerbview)$"] number $ws7
+assign [class="(?i)stm32cube|microxplorer"]     number $ws7
 
 # ── Applications ──────────────────────────────────────────────────────────────
 bindsym $mod+Return  exec --no-startup-id ~/.config/i3/scripts/term.sh
@@ -106,6 +143,8 @@ bindsym $mod+F8       exec --no-startup-id ~/.config/i3/scripts/rofi-bluetooth.s
 bindsym $mod+grave    exec --no-startup-id ~/.config/i3/scripts/toggle-kbd.py
 bindsym Print            exec --no-startup-id flameshot gui
 bindsym $mod+Print       exec --no-startup-id flameshot screen
+# Re-apply the monitor layout after plugging monitors in or out
+bindsym $mod+Shift+m exec --no-startup-id ~/.config/i3/scripts/monitors.sh
 
 # ── Focus ─────────────────────────────────────────────────────────────────────
 bindsym $mod+h     focus left
