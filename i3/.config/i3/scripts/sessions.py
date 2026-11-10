@@ -8,6 +8,10 @@ windows attached to them or the i3 workspace each one was on. This script:
   restore  start tmux (continuum restores the sessions), then open one
            terminal per recorded session and move it to its workspace
   run      restore, then save every minute (started by i3 at login on :0)
+  focus S  focus the terminal already showing session S (exit 1 if none)
+  pick-ws  print the dev workspace a new session terminal should open on:
+           the first of DEV_WORKSPACES with fewer than PER_WORKSPACE session
+           terminals, else the one with the fewest (used by dev-picker.sh)
 
 A terminal is matched to its session through the window title, which tmux
 sets to "SESSION:WINDOW:NAME - ..." (set-titles on).
@@ -27,6 +31,9 @@ TERM = os.path.expanduser("~/.config/i3/scripts/term.sh")
 TITLE_RE = re.compile(r"^([^:\s]+):\d+:")
 BOOT_SESSION = "_boot"
 SAVE_EVERY = 60
+# Keep in sync with $ws1..$ws3 in the i3 config
+DEV_WORKSPACES = ["1: dev", "2: dev", "3: ref"]
+PER_WORKSPACE = 2
 
 
 def run(*cmd: str) -> str:
@@ -121,12 +128,34 @@ def restore() -> None:
                         "not restored by tmux: " + ", ".join(missing)])
 
 
+def focus(session: str) -> bool:
+    win = next((cid for cid, _, s in terminal_windows() if s == session), None)
+    if win:
+        i3(f"[con_id={win}] focus")
+    return bool(win)
+
+
+def pick_workspace() -> str:
+    count = {ws: 0 for ws in DEV_WORKSPACES}
+    for _, ws, _ in terminal_windows():
+        if ws in count:
+            count[ws] += 1
+    for ws in DEV_WORKSPACES:
+        if count[ws] < PER_WORKSPACE:
+            return ws
+    return min(DEV_WORKSPACES, key=lambda w: count[w])
+
+
 def main() -> None:
     cmd = sys.argv[1] if len(sys.argv) > 1 else "save"
     if cmd == "save":
         save()
     elif cmd == "restore":
         restore()
+    elif cmd == "focus" and len(sys.argv) > 2:
+        sys.exit(0 if focus(sys.argv[2]) else 1)
+    elif cmd == "pick-ws":
+        print(pick_workspace())
     elif cmd == "run":
         os.makedirs(os.path.dirname(LOCK), exist_ok=True)
         lock = open(LOCK, "w")

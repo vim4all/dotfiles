@@ -165,6 +165,9 @@ zoxide's frecent folders. `build`, `.cache` and the source subfolders of top-lev
 | `Alt+V` | open the folder (or the session's folder) in VimCommander |
 | `Alt+K` | kill the selected session (asks first), then reopen the picker |
 
+A session that is already on screen is **focused** rather than opened a second time. New terminals open on
+the dev workspaces: `1: dev`, then `2: dev`, then `3: ref`, two per workspace (the first one with room).
+
 ### tmux · prefix `Ctrl+a`
 
 **No prefix**
@@ -175,6 +178,7 @@ zoxide's frecent folders. `build`, `.cache` and the source subfolders of top-lev
 | `Alt+G` | **lazygit** popup in the pane's folder |
 | `Alt+T` | scratch shell popup |
 | `Alt+R` | **run a project script**: pick a `run_*.sh` (build, flash, openocd, tests …) |
+| `Alt+S` | **serial monitor**: pick a `ttyUSB`/`ttyACM` port → picocom in a new window (`Enter` 115200, `Ctrl+B` other baud; quit picocom with `Ctrl+B Ctrl+X`) |
 
 **With `Ctrl+a` first**
 

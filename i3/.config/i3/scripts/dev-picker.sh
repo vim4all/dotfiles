@@ -10,6 +10,8 @@
 #   Alt+c  — open a new workspace with `claude --continue`
 #   Alt+v  — open the folder (or the session's folder) in VimCommander
 #   Alt+k  — kill the selected session (asks first)
+# A session that is already on screen gets focused; new terminals open on the
+# dev workspaces (1: dev, 2: dev, 3: ref — two per workspace, first free).
 MODE="${1:-lite}"
 WS="$HOME/.config/tmux_workspaces/dev_${MODE}.sh"
 [ -f "$WS" ] || { notify-send "dev-picker" "unknown mode: $MODE"; exit 1; }
@@ -100,6 +102,16 @@ fi
 
 # the terminal may not pass i3's environment through, so set PATH explicitly
 ENVPATH="$HOME/.local/bin:$HOME/.npm-global/bin:$PATH"
+
+SESSIONS="$HOME/.config/i3/scripts/sessions.py"
+
+# Running session already on screen → focus that terminal instead of opening another
+[ -n "$session" ] && "$SESSIONS" focus "$session" && exit 0
+
+# New terminals go to the dev workspaces: 1, then 2, then 3, two per workspace
+# (see sessions.py pick-ws). Switch there first so the window opens in place.
+ws=$("$SESSIONS" pick-ws 2>/dev/null)
+[ -n "$ws" ] && i3-msg -q "workspace --no-auto-back-and-forth \"$ws\""
 
 # Running session → just attach
 [ -n "$session" ] && exec ~/.config/i3/scripts/term.sh env PATH="$ENVPATH" tmux attach -t "=$session"
