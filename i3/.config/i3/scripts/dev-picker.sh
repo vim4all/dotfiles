@@ -1,6 +1,9 @@
 #!/bin/bash
 # Pick a project with rofi and open it in a tmux dev workspace in a new terminal.
-#   dev-picker.sh [lite|claude|gemini|plain]   (default: lite)
+#   dev-picker.sh [--tty] [lite|claude|gemini|plain]   (default: lite)
+# --tty: pick with fzf in the current terminal and attach right there (over
+#        SSH, e.g. from the phone; `dev` in bash, also run at SSH login).
+#        Keys: Enter open · Ctrl+r claude --continue · Ctrl+k kill session
 # List, top to bottom:
 #   ● session  ·  folder      running tmux sessions
 #   DCR/DCR_ESP32_Telemetry   ~/wrk_dir/<group>/<project> (those without a session)
@@ -12,9 +15,14 @@
 #   Alt+k  — kill the selected session (asks first)
 # A session that is already on screen gets focused; new terminals open on the
 # dev workspaces (1: dev, 2: dev, 3: ref — two per workspace, first free).
+TTY=0
+[ "$1" = "--tty" ] && { TTY=1; shift; }
 MODE="${1:-lite}"
 WS="$HOME/.config/tmux_workspaces/dev_${MODE}.sh"
-[ -f "$WS" ] || { notify-send "dev-picker" "unknown mode: $MODE"; exit 1; }
+
+say() { if [ $TTY = 1 ]; then echo "dev: $*" >&2; else notify-send "dev-picker" "$*"; fi; }
+
+[ -f "$WS" ] || { say "unknown mode: $MODE"; exit 1; }
 WRK="$HOME/wrk_dir"
 
 short() { local p="$1"; p="${p#$WRK/}"; [ "$p" = "$1" ] && p="${1/#$HOME/\~}"; printf '%s' "$p"; }
@@ -69,9 +77,18 @@ choice=$(
       seen["$d"]=1; short "$d"; echo
       n=$((n + 1)); [ $n -ge 15 ] && break
     done < <(zoxide query -l 2>/dev/null)
-  } | rofi -dmenu -i -p "dev-$MODE" \
+  } | if [ $TTY = 1 ]; then
+    # fzf; map its --expect keys onto rofi's custom-key exit codes
+    out=$(fzf --reverse --no-sort --prompt "dev-$MODE ▸ " --expect ctrl-r,ctrl-k \
+              --header "Enter open · ^R continue · ^K kill · Esc shell") || exit 1
+    key=$(head -1 <<<"$out"); sel=$(sed -n 2p <<<"$out")
+    printf '%s' "$sel"
+    case "$key" in ctrl-r) exit 10 ;; ctrl-k) exit 12 ;; *) exit 0 ;; esac
+  else
+    rofi -dmenu -i -p "dev-$MODE" \
       -mesg "Enter: open  ·  Alt+c: claude --continue  ·  Alt+v: VimCommander  ·  Alt+k: kill session" \
       -kb-custom-1 "Alt+c" -kb-custom-2 "Alt+v" -kb-custom-3 "Alt+k" -no-show-icons
+  fi
 )
 rc=$?
 case $rc in 0|10|11|12) ;; *) exit 0 ;; esac
@@ -89,13 +106,28 @@ fi
 
 # Alt+k: kill a session, then show the picker again
 if [ $rc -eq 12 ]; then
-  [ -z "$session" ] && { notify-send "dev-picker" "Alt+k only works on a running session (●)"; exit 0; }
-  ok=$(printf 'no\nyes, kill %s\n' "$session" | rofi -dmenu -i -p "kill session $session?" -no-show-icons)
-  [[ "$ok" == yes* ]] && tmux kill-session -t "=$session"
-  exec "$0" "$@"
+  [ -z "$session" ] && { say "kill only works on a running session (●)"; exit 0; }
+  if [ $TTY = 1 ]; then
+    read -rp "kill session $session? [y/N] " ok </dev/tty
+  else
+    ok=$(printf 'no\nyes, kill %s\n' "$session" | rofi -dmenu -i -p "kill session $session?" -no-show-icons)
+  fi
+  [[ "$ok" == [yY]* ]] && tmux kill-session -t "=$session"
+  exec "$0" $([ $TTY = 1 ] && echo --tty) "$MODE"
 fi
 
-[ -d "$dir" ] || { notify-send "dev-picker" "not a directory: $dir"; exit 1; }
+[ -d "$dir" ] || { say "not a directory: $dir"; exit 1; }
+
+CONT=(); [ $rc -eq 10 ] && CONT=(-c)
+
+# Terminal mode: attach in this terminal (switch if already inside tmux)
+if [ $TTY = 1 ]; then
+  if [ -n "$session" ]; then
+    if [ -n "$TMUX" ]; then exec tmux switch-client -t "=$session"; fi
+    exec tmux attach -t "=$session"
+  fi
+  cd "$dir" && exec bash "$WS" "${CONT[@]}" "$dir"
+fi
 
 # Alt+v: VimCommander
 [ $rc -eq 11 ] && exec "$HOME/.local/bin/vimcommander" "$dir"
@@ -116,6 +148,5 @@ ws=$("$SESSIONS" pick-ws 2>/dev/null)
 # Running session → just attach
 [ -n "$session" ] && exec ~/.config/i3/scripts/term.sh env PATH="$ENVPATH" tmux attach -t "=$session"
 
-CONT=(); [ $rc -eq 10 ] && CONT=(-c)
 exec ~/.config/i3/scripts/term.sh -d "$dir" \
   env PATH="$ENVPATH" bash "$WS" "${CONT[@]}" "$dir"

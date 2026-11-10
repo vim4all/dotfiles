@@ -74,6 +74,9 @@ bind 'set show-all-if-ambiguous on'        # single-tab shows all options
 bind 'set mark-symlinked-directories on'   # append / to symlinked dirs
 
 # ── Environment ────────────────────────────────────────────────────────────────
+# iSH (iPhone) reports TERM=xterm but handles 256 colours; without this tmux,
+# Claude and the prompt fall back to 8 colours over SSH
+[ -n "$SSH_CONNECTION" ] && [ "$TERM" = "xterm" ] && export TERM=xterm-256color
 export EDITOR=nvim
 export LESS='-RFXi --mouse'   # -R colors, -F quit if one screen, -X no clear, -i smart case
 export LESSHISTFILE=/dev/null  # don't litter ~/.lesshst
@@ -198,3 +201,13 @@ export PATH="$HOME/.local/bin:$HOME/.npm-global/bin:$HOME/.local/stm32cube/bin:$
 
 # kitty: remote hosts don't know TERM=xterm-kitty — use a generic one over ssh
 [ "$TERM" = "xterm-kitty" ] && alias ssh='TERM=xterm-256color ssh'
+
+# ── Project picker in the terminal ─────────────────────────────────────────────
+# `dev` = Super+P for the terminal (fzf): attach a session or start dev-lite.
+# An SSH login (e.g. iSH on the phone) opens it straight away; Esc → plain shell.
+# Skip it once with: ssh -t host 'DEV_NO_PICKER=1 bash -l'
+alias dev='bash ~/.config/i3/scripts/dev-picker.sh --tty'
+if [ -n "$SSH_CONNECTION" ] && [ -z "$TMUX" ] && [ -z "$DEV_NO_PICKER" ] && [ "$SHLVL" -le 1 ] &&
+   command -v fzf >/dev/null && command -v tmux >/dev/null; then
+  bash ~/.config/i3/scripts/dev-picker.sh --tty
+fi
