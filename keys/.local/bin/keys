@@ -1,0 +1,421 @@
+#!/usr/bin/env python3
+"""keys: a searchable cheat sheet of i3 + tmux bindings, and how much each is used.
+
+  keys                 fzf list of every binding (tmux first inside tmux)
+  keys --tmux          the same, for the tmux popup (prefix + ?)
+  keys --rofi          rofi list (Super+/); Enter runs an i3 binding
+  keys stats [-u] [-d N] [-s]
+                       usage report: -u only unused, -d N last N days,
+                       -s also shell + git aliases from bash history
+  keys i3-log          (i3 exec_always) record i3 bindings as they are used
+  keys tmux-wrap       (end of tmux.conf) make tmux bindings record their use
+
+Descriptions come from the configs: `#: text` on the line above an i3
+bindsym, `bind-key -N "text"` in tmux. Usage goes to
+~/.local/state/keys/usage.log, one line per key press: <epoch> <src> <id>.
+"""
+import fcntl, hashlib, json, os, re, shlex, subprocess, sys, tempfile, time
+from collections import Counter
+
+HOME = os.path.expanduser('~')
+STATE = os.path.join(os.environ.get('XDG_STATE_HOME', HOME + '/.local/state'), 'keys')
+LOG = os.path.join(STATE, 'usage.log')
+I3CONF = HOME + '/.config/i3/config'
+LOGGER = '~/.local/bin/keys-log'          # tiny sh script tmux calls per key
+
+# Catppuccin Mocha
+C = dict(key='\033[38;2;137;180;250m', dim='\033[2m', grn='\033[38;2;166;227;161m',
+         red='\033[38;2;243;139;168m', yel='\033[38;2;249;226;175m', off='\033[0m')
+
+# Keys bound by tmux plugins, which carry no -N note
+PLUGIN_DESC = [('resurrect/scripts/save', 'Save sessions (resurrect)'),
+               ('resurrect/scripts/restore', 'Restore saved sessions (resurrect)'),
+               ('sessionx', 'Fuzzy session / window switcher (sessionx)'),
+               ('tpm/bindings/install', 'Install tmux plugins (TPM)'),
+               ('tpm/bindings/update', 'Update tmux plugins (TPM)'),
+               ('tpm/bindings/clean', 'Remove unused tmux plugins (TPM)'),
+               ('copy_line', 'Copy the command line (yank)'),
+               ('copy_pane_pwd', "Copy the pane's folder (yank)")]
+
+
+def key_token(s):
+    """Shell-safe, space-free id for a key name (hex if it has odd chars)."""
+    return s if re.fullmatch(r'[A-Za-z0-9_+./-]+', s) else 'x' + s.encode().hex()
+
+
+def token_key(t):
+    return bytes.fromhex(t[1:]).decode() if re.fullmatch(r'x([0-9a-f]{2})+', t) else t
+
+
+# ── i3 ────────────────────────────────────────────────────────────────────────
+MODS = {'mod4': 'Super', 'mod1': 'Alt', 'ctrl': 'Ctrl', 'control': 'Ctrl', 'shift': 'Shift'}
+MOD_ORDER = ['Super', 'Ctrl', 'Alt', 'Shift']
+PRETTY = {'slash': '/', 'grave': '`', 'minus': '-', 'Escape': 'Esc', 'Return': 'Enter',
+          'space': 'Space', 'Print': 'PrtSc'}
+
+
+def i3_combo(mods, sym):
+    """Canonical 'Super+Shift+q' from modifier names + keysym."""
+    ms = sorted({MODS.get(m.lower(), m) for m in mods if m.lower() in MODS},
+                key=MOD_ORDER.index)
+    if len(sym) == 1:
+        sym = sym.lower()
+    return '+'.join(ms + [sym])
+
+
+def i3_bindings():
+    try:
+        raw = open(I3CONF).read()
+    except OSError:
+        return []
+    raw = re.sub(r'\\\n\s*', ' ', raw)            # join continuation lines
+    var, out, section, mode, note = {}, [], '', 'default', None
+    for line in raw.split('\n'):
+        s = line.strip()
+        m = re.match(r'set\s+(\$\w+)\s+(.*)', s)
+        if m:
+            var[m.group(1)] = m.group(2).strip()
+            continue
+        m = re.match(r'#\s*──\s*(.*?)\s*─', s)
+        if m:
+            section, note = m.group(1), None
+            continue
+        if s.startswith('#:'):
+            note = s[2:].strip()
+            continue
+        m = re.match(r'mode\s+(?:--pango_markup\s+)?"([^"]*)"\s*\{', s)
+        if m:
+            mode = m.group(1)
+            continue
+        if s == '}':
+            mode = 'default'
+            continue
+        m = re.match(r'bindsym\s+((?:--\S+\s+)*)(\S+)\s+(.*)', s)
+        if m:
+            combo, cmd = m.group(2), m.group(3)
+            for k in sorted(var, key=len, reverse=True):
+                combo, cmd = combo.replace(k, var[k]), cmd.replace(k, var[k])
+            *mods, sym = combo.split('+')
+            key = i3_combo(mods, sym)
+            shown = '+'.join(PRETTY.get(p, p) for p in key.split('+'))
+            desc = note or ' '.join(auto_i3_desc(cmd).split())
+            if mode != 'default':
+                shown = f'[{mode.strip()}] {shown}'
+            out.append(dict(src='i3', id=f'{mode.strip()}/{key}', key=shown,
+                            desc=desc, group=section or 'i3', cmd=cmd))
+        if s and not s.startswith('#:'):
+            note = None
+    return out
+
+
+def auto_i3_desc(cmd):
+    m = re.match(r'exec(?:_always)?\s+(?:--no-startup-id\s+)?(.*)', cmd)
+    if m:
+        words = m.group(1).split()
+        return ' '.join([os.path.basename(words[0])] + words[1:3])
+    return cmd
+
+
+def i3_log():
+    """Append every i3 binding press to LOG. One instance per i3 (flock)."""
+    os.makedirs(STATE, exist_ok=True)
+    sock = os.environ.get('I3SOCK') or os.environ.get('DISPLAY', 'x')
+    lock = open(os.path.join(STATE, 'i3-' + hashlib.md5(sock.encode()).hexdigest()[:8] + '.lock'), 'w')
+    try:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        return                                     # already running for this i3
+    while True:
+        mode = 'default'
+        p = subprocess.Popen(['i3-msg', '-t', 'subscribe', '-m', '["binding","mode"]'],
+                             stdout=subprocess.PIPE, text=True)
+        for line in p.stdout:
+            try:
+                ev = json.loads(line)
+            except ValueError:
+                continue
+            if 'binding' in ev:
+                b = ev['binding']
+                key = i3_combo(b.get('event_state_mask', []), b.get('symbol') or str(b.get('input_code')))
+                with open(LOG, 'a') as f:
+                    f.write(f"{int(time.time())} i3 {key_token(mode.strip() + '/' + key)}\n")
+            elif 'change' in ev:
+                mode = ev['change']
+        p.wait()
+        # i3 restarted in place (resubscribe) or exited (stop)
+        time.sleep(1)
+        if subprocess.run(['i3-msg', '-t', 'get_version'], capture_output=True).returncode:
+            return
+
+
+# ── tmux ──────────────────────────────────────────────────────────────────────
+BIND_RX = re.compile(r'^bind-key\s+((?:-r\s+)?)-T\s+(\S+)\s+(\S+)\s+(.*)$')
+WRAP_RX = re.compile(r'^run-shell -b "?\S*/keys-log [^"\\;]*"? \\; ')   # tmux expands ~
+MOUSE_RX = re.compile(r'Mouse|Wheel|Drag|Click|Double|Triple')
+
+
+def unescape_key(k):
+    return k[1:] if len(k) == 2 and k[0] == '\\' else k
+
+
+def tmux(*args):
+    r = subprocess.run(['tmux', *args], capture_output=True, text=True)
+    return r.stdout if r.returncode == 0 else ''
+
+
+def tmux_notes(table):
+    notes = {}
+    for line in tmux('list-keys', '-N', '-P', '', '-T', table).splitlines():
+        m = re.match(r'(\S+)\s+(.*)', line)
+        if m:
+            notes[m.group(1)] = m.group(2).strip()
+    return notes
+
+
+def tmux_raw():
+    """(flags, table, key-as-printed, command) for prefix + root (no mouse)."""
+    out, seen = [], set()
+    for line in tmux('list-keys').splitlines():
+        m = BIND_RX.match(line)
+        if m and m.group(2) in ('prefix', 'root') and not (m.group(2) == 'root' and MOUSE_RX.search(m.group(3))) \
+                and (m.group(2), m.group(3)) not in seen:
+            seen.add((m.group(2), m.group(3)))
+            out.append(m.groups())
+    return out
+
+
+def tmux_bindings():
+    notes = {t: tmux_notes(t) for t in ('prefix', 'root')}
+    out = []
+    for flags, table, k, cmd in tmux_raw():
+        key = unescape_key(k)
+        cmd = WRAP_RX.sub('', cmd)
+        desc = notes[table].get(key)
+        if not desc:
+            desc = next((d for pat, d in PLUGIN_DESC if pat in cmd), None) or cmd[:70]
+        nice = re.sub(r'\bC-', 'Ctrl+', re.sub(r'\bM-', 'Alt+', re.sub(r'\bS-', 'Shift+', key)))
+        shown = ('prefix ' + nice) if table == 'prefix' else nice
+        out.append(dict(src='tmux', id=f'{table}/{key}', key=shown, desc=desc,
+                        group=table, cmd=cmd, noted=key in notes[table]))
+    return out
+
+
+def tmux_wrap():
+    """Re-bind prefix + root keys so each press runs keys-log first."""
+    if not os.environ.get('TMUX') and not tmux('display-message', '-p', 'x'):
+        return
+    notes = {t: tmux_notes(t) for t in ('prefix', 'root')}
+    lines = []
+    for flags, table, k, cmd in tmux_raw():
+        if WRAP_RX.match(cmd):
+            continue                               # already wrapped (reload)
+        key = unescape_key(k)
+        note = notes[table].get(key)
+        n = ' -N ' + json.dumps(note) if note else ''
+        log = f'run-shell -b "{LOGGER} tmux {key_token(table + "/" + key)}" \\; '
+        lines.append(f'bind-key {flags}-T {table}{n} {k} {log}{cmd}')
+    if not lines:
+        return
+    with tempfile.NamedTemporaryFile('w', suffix='.tmux', delete=False) as f:
+        f.write('\n'.join(lines) + '\n')
+    r = subprocess.run(['tmux', 'source-file', f.name], capture_output=True, text=True)
+    if r.returncode:
+        tmux('display-message', 'keys tmux-wrap failed: ' + (r.stderr or r.stdout).strip()[:200])
+        print(r.stderr or r.stdout, file=sys.stderr)
+    os.unlink(f.name)
+
+
+# ── usage ─────────────────────────────────────────────────────────────────────
+def read_log(days=None):
+    cnt, last, first = Counter(), {}, None
+    since = time.time() - days * 86400 if days else 0
+    try:
+        for line in open(LOG):
+            p = line.split()
+            if len(p) != 3 or not p[0].isdigit():
+                continue
+            t = int(p[0])
+            first = t if first is None else first
+            if t < since:
+                continue
+            k = (p[1], token_key(p[2]))
+            cnt[k] += 1
+            last[k] = t
+    except OSError:
+        pass
+    return cnt, last, first
+
+
+def all_bindings(tmux_first=False):
+    i3, tm = i3_bindings(), tmux_bindings()
+    return tm + i3 if tmux_first else i3 + tm
+
+
+def ago(t):
+    if not t:
+        return 'never'
+    d = time.time() - t
+    for n, u in ((86400, 'd'), (3600, 'h'), (60, 'm')):
+        if d >= n:
+            return f'{int(d // n)}{u} ago'
+    return 'now'
+
+
+# ── cheat sheet ───────────────────────────────────────────────────────────────
+def rows(bs, cnt, color=True):
+    c = C if color else {k: '' for k in C}
+    out = []
+    for b in bs:
+        n = cnt.get((b['src'], b['id']), 0)
+        uses = f"{c['dim']}{n:>5}×{c['off']}" if n else f"{c['dim']}     ·{c['off']}"
+        out.append(f"{c['key']}{b['key']:<24.24}{c['off']} {b['desc']:<52.52} "
+                   f"{uses}  {c['dim']}{b['src']} · {b['group']}{c['off']}")
+    return out
+
+
+def fzf_sheet(tmux_first):
+    bs = all_bindings(tmux_first)
+    cnt, _, first = read_log()
+    since = f'counting since {time.strftime("%d %b", time.localtime(first))}' if first else 'no usage counted yet'
+    header = f'type to search · Esc closes · uses = presses ({since})'
+    r = subprocess.run(['fzf', '--ansi', '--no-sort', '--layout=reverse', '--height=100%',
+                        '--prompt', 'keys ❯ ', '--header', header, '--no-multi'],
+                       input='\n'.join(rows(bs, cnt)), text=True)
+    sys.exit(0 if r.returncode in (0, 1, 130) else r.returncode)
+
+
+def rofi_sheet():
+    bs = all_bindings()
+    cnt, _, _ = read_log()
+    esc = lambda s: s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+    lines = []
+    for b in bs:
+        n = cnt.get((b['src'], b['id']), 0)
+        lines.append(f"<b>{esc(b['key'])}</b>   {esc(b['desc'])}   "
+                     f"<span alpha='50%'>{b['src']} · {esc(b['group'])}{f' · {n}×' if n else ''}</span>")
+    r = subprocess.run(['rofi', '-dmenu', '-i', '-markup-rows', '-format', 'i', '-p', 'keys',
+                        '-mesg', 'Enter runs an i3 binding · tmux ones are listed for reference'],
+                       input='\n'.join(lines), capture_output=True, text=True)
+    if r.returncode or not r.stdout.strip().isdigit():
+        return
+    b = bs[int(r.stdout)]
+    if b['src'] == 'i3' and not b['key'].startswith('['):
+        subprocess.run(['i3-msg', '-q', b['cmd']])
+        with open(LOG, 'a') as f:                   # count it like a key press
+            f.write(f"{int(time.time())} i3 {key_token(b['id'])}\n")
+
+
+# ── stats ─────────────────────────────────────────────────────────────────────
+def shell_stats(days):
+    """Aliases / functions from .bashrc and git aliases, counted in bash history."""
+    hist = HOME + '/.bash_history'
+    try:
+        raw = open(hist, errors='replace').read().split('\n')
+    except OSError:
+        return
+    since = time.time() - days * 86400 if days else 0
+    cmds, t = [], 0
+    for l in raw:
+        if re.fullmatch(r'#\d{9,}', l):
+            t = int(l[1:])
+        elif l and t >= since:
+            cmds.append(l)
+    rc = open(HOME + '/.bashrc').read()
+    # aliases that just add flags to the same command (ls='ls --color') aren't habits
+    names = {n for n, v in re.findall(r'^\s*(?:command -v \S+ >/dev/null \|\| )?alias\s+([\w.-]+)=[\'"]?(\S+)', rc, re.M)
+             if v.split('=')[-1] != n}
+    names |= set(re.findall(r'^\s*([a-z][\w-]*)\s*\(\)\s*\{', rc, re.M))
+    names -= {'bat', 'fd', 'vifm'}                # renames / wrappers of real commands
+    gal = set(re.findall(r'^alias\.(\S+)', subprocess.run(
+        ['git', 'config', '--global', '--get-regexp', r'^alias\.'], capture_output=True, text=True).stdout, re.M))
+    c = Counter()
+    for l in cmds:
+        for seg in re.split(r'\|\||&&|[|;]', l):
+            w = seg.split()
+            if not w:
+                continue
+            if w[0] in names:
+                c[w[0]] += 1
+            if w[0] == 'git' and len(w) > 1 and w[1] in gal:
+                c['git ' + w[1]] += 1
+    span = f'last {days} days' if days else f'all {len(cmds)} commands in history'
+    print(f"\n{C['yel']}shell + git aliases{C['off']}  {C['dim']}({span}){C['off']}")
+    for n in sorted(names | {'git ' + g for g in gal}, key=lambda n: (c[n], n)):
+        col = C['red'] if not c[n] else ''
+        print(f"  {col}{c[n]:>6}{C['off']}  {n}")
+
+
+def stats(args):
+    unused = '-u' in args
+    days = int(args[args.index('-d') + 1]) if '-d' in args else None
+    cnt, last, first = read_log(days)
+    if not first:
+        print('Nothing counted yet: key presses are recorded from now on.')
+    else:
+        span = f'last {days} days' if days else f'since {time.strftime("%d %b %Y", time.localtime(first))}'
+        print(f"{C['dim']}key presses {span}; red = never used{C['off']}")
+    for src, bs in (('i3', i3_bindings()), ('tmux', tmux_bindings())):
+        seen, uniq = set(), []
+        for b in bs:                                   # tmux C-n / n etc. stay separate
+            if (b['src'], b['id']) not in seen:
+                seen.add((b['src'], b['id']))
+                uniq.append(b)
+        if src == 'tmux':                              # tmux has ~90 built-ins; keep it to yours
+            uniq = [b for b in uniq if b['id'] in OWN_TMUX()]
+        uniq.sort(key=lambda b: cnt.get((b['src'], b['id']), 0))
+        print(f"\n{C['yel']}{src}{C['off']}")
+        for b in uniq:
+            n = cnt.get((b['src'], b['id']), 0)
+            if unused and n:
+                continue
+            col = C['red'] if not n else ''
+            print(f"  {col}{n:>6}{C['off']}  {b['key']:<24.24} {b['desc']:<50.50} {C['dim']}{ago(last.get((b['src'], b['id'])))}{C['off']}")
+    if '-s' in args:
+        shell_stats(days)
+
+
+_own = None
+
+
+def OWN_TMUX():
+    """tmux keys bound in ~/.tmux.conf (so the report skips untouched defaults)."""
+    global _own
+    if _own is None:
+        _own = set()
+        try:
+            for l in open(HOME + '/.tmux.conf'):
+                m = re.match(r'\s*bind(?:-key)?((?:\s+-[nr]|\s+-N\s+"[^"]*"|\s+-T\s+\S+)*)\s+(\S+)', l)
+                if m:
+                    table = 'root' if '-n' in m.group(1).split() else \
+                        (re.search(r'-T\s+(\S+)', m.group(1)) or [None, 'prefix'])[1]
+                    _own.add(f'{table}/{unescape_key(m.group(2))}')
+        except OSError:
+            pass
+        _own |= {'prefix/o', 'prefix/C-s', 'prefix/C-r', 'prefix/I', 'prefix/U', 'prefix/M-u',
+                 'prefix/y', 'prefix/Y'}          # plugin keys
+    return _own
+
+
+def main():
+    a = sys.argv[1:]
+    cmd = a[0] if a else ''
+    if cmd in ('-h', '--help'):
+        print(__doc__.strip())
+    elif cmd == '--rofi':
+        rofi_sheet()
+    elif cmd == '--tmux':
+        fzf_sheet(True)
+    elif cmd == 'stats':
+        stats(a[1:])
+    elif cmd == 'i3-log':
+        i3_log()
+    elif cmd == 'tmux-wrap':
+        tmux_wrap()
+    elif cmd == '':
+        fzf_sheet(bool(os.environ.get('TMUX')))
+    else:
+        sys.exit(__doc__.strip())
+
+
+if __name__ == '__main__':
+    main()

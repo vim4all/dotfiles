@@ -12,7 +12,7 @@ Managed with [GNU Stow](https://www.gnu.org/software/stow/). nvim is a git submo
 - [Quick start](#quick-start)
 - [Screenshots](#screenshots)
 - [How it fits together](#how-it-fits-together)
-- [Cheat sheet](#cheat-sheet): [i3](#i3--super) · [project picker](#project-picker) · [tmux](#tmux--prefix-ctrla) · [dev workspaces](#dev-workspaces) · [Claude](#claude-code) · [kitty](#kitty) · [VimCommander](#vimcommander) · [Obsidian](#obsidian) · [bash](#bash) · [git](#git) · [ssh](#ssh) · [nvim](#nvim--leader-space)
+- [Cheat sheet](#cheat-sheet): [i3](#i3--super) · [project picker](#project-picker) · [tmux](#tmux--prefix-ctrla) · [dev workspaces](#dev-workspaces) · [key cheat sheet](#key-cheat-sheet) · [Claude](#claude-code) · [kitty](#kitty) · [VimCommander](#vimcommander) · [Obsidian](#obsidian) · [bash](#bash) · [git](#git) · [ssh](#ssh) · [nvim](#nvim--leader-space)
 - [Managing the dotfiles](#managing-the-dotfiles)
 - [Packages](#packages)
 
@@ -237,6 +237,25 @@ flowchart TB
 Options: `-c` continue the last AI conversation · `DIR SESSION` custom session name ·
 `-- ARGS` passed to the AI CLI (`dev-lite -- --model opus`). An existing session is just attached.
 
+### Key cheat sheet
+
+Forgot a key? **`Super+/`** (rofi, `Ctrl+Alt+/` over VNC) or **`prefix ?`** (tmux popup)
+lists every i3 and tmux binding with a description and how often you've used it.
+Type to search; in rofi, `Enter` runs an i3 binding.
+
+Every key press is counted in `~/.local/state/keys/usage.log` (local, never committed).
+To find bindings worth dropping:
+
+| Command | Shows |
+|---|---|
+| `keys stats` | i3 + your tmux keys, least used first; red = never |
+| `keys stats -u` | only the never-used ones |
+| `keys stats -d 30` | the last 30 days |
+| `keys stats -s` | also shell and git aliases, counted in bash history |
+
+Descriptions live in the configs: a `#: text` line right above an i3 `bindsym`, and
+`bind-key -N "text"` in tmux. A binding without one shows its command.
+
 ### Claude Code
 
 | What | How |
@@ -424,6 +443,7 @@ git submodule update --remote nvim/.config/nvim     # pull the newest nvim confi
 | `direnv` | `.config/direnv/lib/esp_idf.sh` | `use esp_idf` for `.envrc` files (cached ESP-IDF environment) |
 | `vnc` | `.vnc/xstartup`, `.config/systemd/user/vncserver@.service` | TigerVNC session (i3) and a user unit to start it at boot: `systemctl --user enable --now vncserver@:1` + `loginctl enable-linger` |
 | `ssh` | `.ssh/config` | generic defaults (connection reuse, keepalive); includes `~/.ssh/config.local` |
+| `keys` | `.local/bin/keys`, `keys-log` | key cheat sheet (`Super+/`, `prefix ?`) and usage counting (`keys stats`) |
 | `nvim` | `.config/nvim/` | submodule → Neovim_lua_config |
 
 ### Local, never committed

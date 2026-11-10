@@ -1,0 +1,5 @@
+#!/bin/sh
+# Called by tmux on every bound key press (see `keys tmux-wrap`): <epoch> <src> <id>
+d="${XDG_STATE_HOME:-$HOME/.local/state}/keys"
+[ -d "$d" ] || mkdir -p "$d"
+echo "$(date +%s) $1 $2" >> "$d/usage.log"

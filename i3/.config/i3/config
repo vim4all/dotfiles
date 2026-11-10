@@ -107,6 +107,7 @@ workspace $ws7 output $mon_main
 
 # Win+N on the workspace you're already on jumps back to the previous one
 workspace_auto_back_and_forth yes
+#: Back to the previous workspace
 bindsym $mod+Escape workspace back_and_forth
 
 # ── App → workspace ───────────────────────────────────────────────────────────
@@ -123,30 +124,45 @@ assign [class="(?i)^(kicad|eeschema|pcbnew|gerbview)$"] number $ws7
 assign [class="(?i)stm32cube|microxplorer"]     number $ws7
 
 # ── Applications ──────────────────────────────────────────────────────────────
+#: Terminal
 bindsym $mod+Return  exec --no-startup-id ~/.config/i3/scripts/term.sh
+#: Close window
 bindsym $mod+Shift+q kill
+#: App launcher (rofi)
 bindsym $mod+d       exec --no-startup-id rofi -show drun
+#: Window switcher (rofi)
 bindsym $mod+Tab     exec --no-startup-id rofi -show window
 
 # Project picker → tmux dev workspace (dev-lite default / dev-claude full layout)
 # Running sessions are listed first; Alt+c in the picker = claude --continue
+#: Project picker → dev-lite (Claude + shell)
 bindsym $mod+p       exec --no-startup-id ~/.config/i3/scripts/dev-picker.sh lite
+#: Project picker → full layout (nvim + shell + Claude)
 bindsym $mod+Shift+p exec --no-startup-id ~/.config/i3/scripts/dev-picker.sh claude
 
 # Obsidian as a scratchpad overlay + quick capture to 99_Input/Inbox.md
 for_window [class="obsidian"] move scratchpad, resize set 85 ppt 85 ppt, move position center
+#: Obsidian overlay
 bindsym $mod+o exec --no-startup-id ~/.config/i3/scripts/obsidian-toggle.py
+#: Quick capture to the Obsidian inbox
 bindsym $mod+n exec --no-startup-id ~/.config/i3/scripts/quick-capture.sh
 
 # VimCommander (two-pane file manager)
+#: VimCommander
 bindsym $mod+c exec --no-startup-id ~/.local/bin/vimcommander
 
+#: Lock screen
 bindsym $mod+Shift+x exec --no-startup-id i3lock --color=1e1e2e
+#: Bluetooth menu
 bindsym $mod+F8       exec --no-startup-id ~/.config/i3/scripts/rofi-bluetooth.sh
+#: Toggle keyboard layout
 bindsym $mod+grave    exec --no-startup-id ~/.config/i3/scripts/toggle-kbd.py
+#: Screenshot: select area (flameshot)
 bindsym Print            exec --no-startup-id flameshot gui
+#: Screenshot: whole screen
 bindsym $mod+Print       exec --no-startup-id flameshot screen
 # Re-apply the monitor layout after plugging monitors in or out
+#: Re-apply monitor layout
 bindsym $mod+Shift+m exec --no-startup-id ~/.config/i3/scripts/monitors.sh
 
 # ── Focus ─────────────────────────────────────────────────────────────────────
@@ -172,16 +188,24 @@ bindsym $mod+Shift+Up    move up
 bindsym $mod+Shift+Right move right
 
 # ── Splits ────────────────────────────────────────────────────────────────────
+#: Next window opens to the right
 bindsym $mod+b split h
+#: Next window opens below
 bindsym $mod+v split v
 
 # ── Layout ────────────────────────────────────────────────────────────────────
 bindsym $mod+f         fullscreen toggle
+#: Stacked layout
 bindsym $mod+s         layout stacking
+#: Tabbed layout
 bindsym $mod+w         layout tabbed
+#: Toggle split direction
 bindsym $mod+e         layout toggle split
+#: Float / unfloat window
 bindsym $mod+Shift+space floating toggle
+#: Focus floating ↔ tiled
 bindsym $mod+space     focus mode_toggle
+#: Focus parent container
 bindsym $mod+a         focus parent
 
 # ── Workspace Switching ───────────────────────────────────────────────────────
@@ -209,23 +233,34 @@ bindsym $mod+Shift+9 move container to workspace number $ws9
 bindsym $mod+Shift+0 move container to workspace number $ws10
 
 # ── Brightness ────────────────────────────────────────────────────────────────
+#: Brightness up
 bindsym XF86MonBrightnessUp   exec --no-startup-id xbacklight -inc 5
+#: Brightness down
 bindsym XF86MonBrightnessDown exec --no-startup-id xbacklight -dec 5
 
 # ── Volume ────────────────────────────────────────────────────────────────────
 set $refresh_i3status killall -SIGUSR1 i3status
+#: Volume up
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@   +5%    && $refresh_i3status
+#: Volume down
 bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@   -5%    && $refresh_i3status
+#: Mute
 bindsym XF86AudioMute        exec --no-startup-id pactl set-sink-mute   @DEFAULT_SINK@   toggle && $refresh_i3status
+#: Mute microphone
 bindsym XF86AudioMicMute     exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
 # ── Scratchpad ────────────────────────────────────────────────────────────────
+#: Show / hide scratchpad
 bindsym $mod+minus       scratchpad show
+#: Move window to scratchpad
 bindsym $mod+Shift+minus move scratchpad
 
 # ── i3 Control ────────────────────────────────────────────────────────────────
+#: Reload i3 config
 bindsym $mod+Shift+c reload
+#: Restart i3 in place
 bindsym $mod+Shift+r restart
+#: Exit i3 (asks first)
 bindsym $mod+Shift+e exec "i3-nagbar -t warning \
     -m 'Exit i3 and end your X session?' \
     -B 'Yes, exit i3' 'i3-msg exit'"
@@ -246,6 +281,7 @@ mode "  resize  " {
     bindsym Escape mode "default"
     bindsym $mod+r mode "default"
 }
+#: Resize mode (hjkl / arrows, Esc to leave)
 bindsym $mod+r mode "  resize  "
 
 # ── Bar ───────────────────────────────────────────────────────────────────────
@@ -270,16 +306,34 @@ bar {
         binding_mode         $peach     $peach      $base
     }
 }
+# ── Extras ──────────────────────────────────────────────────────────────────
 # Google Drive (personal + optional shared drive; script clears stale mounts)
 exec --no-startup-id ~/.config/i3/scripts/mount-gdrive.sh
 
+#: Unmount Google Drive
 bindsym $mod+F9  exec --no-startup-id fusermount -u ~/GoogleDrive
+#: Mount Google Drive
 bindsym $mod+F10 exec --no-startup-id ~/.config/i3/scripts/mount-gdrive.sh
 
-# --- VNC fallbacks (Win key is grabbed by the VNC client's host) ---
+# Key cheat sheet: search every i3 + tmux binding, Enter runs an i3 one
+#: Key cheat sheet (Enter runs it)
+bindsym $mod+slash exec --no-startup-id ~/.local/bin/keys --rofi
+#: Key cheat sheet (VNC)
+bindsym Ctrl+Mod1+slash exec --no-startup-id ~/.local/bin/keys --rofi
+# Count binding use for `keys stats` (one logger per i3, survives restarts)
+exec_always --no-startup-id ~/.local/bin/keys i3-log
+
+# ── VNC fallbacks ───────────────────────────────────────────────────────────
+# The Win key is grabbed by the VNC client's host, so Ctrl+Alt stands in for it
+#: Terminal (VNC)
 bindsym Ctrl+Mod1+Return exec --no-startup-id ~/.config/i3/scripts/term.sh
+#: App launcher (VNC)
 bindsym Ctrl+Mod1+d      exec --no-startup-id rofi -show drun
+#: Close window (VNC)
 bindsym Ctrl+Mod1+q      kill
+#: Project picker → dev-lite (VNC)
 bindsym Ctrl+Mod1+p      exec --no-startup-id ~/.config/i3/scripts/dev-picker.sh lite
+#: Project picker → full layout (VNC)
 bindsym Ctrl+Mod1+Shift+p exec --no-startup-id ~/.config/i3/scripts/dev-picker.sh claude
+#: Obsidian overlay (VNC)
 bindsym Ctrl+Mod1+o      exec --no-startup-id ~/.config/i3/scripts/obsidian-toggle.py
