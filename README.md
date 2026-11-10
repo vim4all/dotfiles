@@ -243,9 +243,18 @@ Options: `-c` continue the last AI conversation · `DIR SESSION` custom session 
 |---|---|
 | Claude with the Obsidian vault | `claude-notes` (vault rules in its `CLAUDE.md`) |
 | Needs you / finished | desktop notification + bell → tmux window and i3 workspace get flagged |
+| Which sessions wait | i3 bar, left: `⚠ name` needs a permission answer (red), `✓ name` finished (goes away once you focus it); click → jump to it |
+| Full layout for this project | `prefix D` in tmux (nvim + shell + Claude) |
 | Status line | model · context % · project/branch · 5 h and weekly limits |
 | Resume after reboot | automatic (tmux-resurrect → `claude --continue`) |
 | From the phone | ish → `ssh` over Tailscale → `tmux attach` |
+
+### ESP-IDF via direnv
+
+ESP32 projects have a `.envrc` with `use esp_idf`: `cd` in and `idf.py`, the Xtensa toolchain and OpenOCD
+are on `PATH` (also for Claude in the dev-lite pane); `cd` out and they're gone. The first load caches the
+environment per IDF commit (`~/.cache/direnv-esp-idf/`), so after that it's instant. New project:
+`echo 'use esp_idf' > .envrc && direnv allow`. `.envrc` is in the global git ignore.
 
 ### kitty
 
@@ -356,7 +365,7 @@ git submodule update --remote nvim/.config/nvim     # pull the newest nvim confi
 | Package | Links into `$HOME` | Contents |
 |---|---|---|
 | `bash` | `.bashrc`, `.profile` | shell options, prompt, aliases, `dev-*`, `claude-notes` |
-| `git` | `.gitconfig` | includes `~/.gitconfig.local` (name / e-mail, not in the repo) |
+| `git` | `.gitconfig`, `.config/git/ignore` | includes `~/.gitconfig.local` (name / e-mail, not in the repo); global ignores (`.envrc`, `settings.local.json`) |
 | `i3` | `.config/i3/` | WM config + scripts (picker, Obsidian toggle, capture, terminal launcher, status) |
 | `i3status` | `.config/i3status/` | bar blocks |
 | `dunst` | `.config/dunst/` | notifications |
@@ -367,6 +376,7 @@ git submodule update --remote nvim/.config/nvim     # pull the newest nvim confi
 | `tmux_workspaces` | `.config/tmux_workspaces/` | dev workspace launchers, Pomodoro |
 | `claude` | `.claude/settings.json`, `statusline.py`, `hooks/notify.py` | Claude Code settings |
 | `vimcommander` | `.config/VimCommander/`, `.local/bin/vimcommander`, `.desktop` | VimCommander settings as `config.example.json`; `install.sh` makes `config.json` from it (app: [VimCommander](https://github.com/vim4all/VimCommander) in `~/src/VimCommander`) |
+| `direnv` | `.config/direnv/lib/esp_idf.sh` | `use esp_idf` for `.envrc` files (cached ESP-IDF environment) |
 | `vnc` | `.vnc/xstartup`, `.config/systemd/user/vncserver@.service` | TigerVNC session (i3) and a user unit to start it at boot: `systemctl --user enable --now vncserver@:1` + `loginctl enable-linger` |
 | `nvim` | `.config/nvim/` | submodule → Neovim_lua_config |
 

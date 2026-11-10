@@ -177,6 +177,12 @@ fi
 
 # ── Tools ──────────────────────────────────────────────────────────────────────
 eval "$(zoxide init bash)"
+# direnv: per-project environments from .envrc (ESP32 projects: `use esp_idf`,
+# see ~/.config/direnv/lib/esp_idf.sh). Messages are dimmed.
+if command -v direnv >/dev/null; then
+  export DIRENV_LOG_FORMAT=$'\e[2mdirenv: %s\e[0m'
+  eval "$(direnv hook bash)"
+fi
 
 # ── Workspace aliases ──────────────────────────────────────────────────────────
 alias dev-claude="bash $HOME/.config/tmux_workspaces/dev_claude.sh"

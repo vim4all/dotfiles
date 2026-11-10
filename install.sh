@@ -6,7 +6,7 @@
 set -euo pipefail
 cd "$(dirname "$(realpath "$0")")"
 
-PACKAGES=(bash git i3 i3status dunst picom rofi kitty tmux tmux_workspaces claude vimcommander vnc nvim)
+PACKAGES=(bash git i3 i3status dunst picom rofi kitty tmux tmux_workspaces claude vimcommander vnc direnv nvim)
 
 DEPS=0
 SEL=()
@@ -20,7 +20,7 @@ done
 [ ${#SEL[@]} -gt 0 ] && PACKAGES=("${SEL[@]}")
 
 if [ "$DEPS" = 1 ]; then
-  sudo apt install -y stow git i3 rofi dunst feh picom flameshot xss-lock i3lock \
+  sudo apt install -y stow git direnv i3 rofi dunst feh picom flameshot xss-lock i3lock \
     network-manager-gnome pulseaudio-utils dex xbacklight autorandr rclone \
     tmux fzf fd-find ripgrep zoxide vifm xclip python3
   if ! command -v kitty >/dev/null; then
