@@ -318,8 +318,8 @@ bindsym $mod+F10 exec --no-startup-id ~/.config/i3/scripts/mount-gdrive.sh
 # Key cheat sheet: search every i3 + tmux binding, Enter runs an i3 one
 #: Key cheat sheet (Enter runs it)
 bindsym $mod+slash exec --no-startup-id ~/.local/bin/keys --rofi
-#: Key cheat sheet (VNC)
-bindsym Ctrl+Mod1+slash exec --no-startup-id ~/.local/bin/keys --rofi
+#: Key cheat sheet (VNC; Ctrl+Alt+/ is swallowed by TigerVNC)
+bindsym Ctrl+Mod1+k exec --no-startup-id ~/.local/bin/keys --rofi
 # Count binding use for `keys stats` (one logger per i3, survives restarts)
 exec_always --no-startup-id ~/.local/bin/keys i3-log
 

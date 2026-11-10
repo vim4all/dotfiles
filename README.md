@@ -239,7 +239,7 @@ Options: `-c` continue the last AI conversation · `DIR SESSION` custom session 
 
 ### Key cheat sheet
 
-Forgot a key? **`Super+/`** (rofi, `Ctrl+Alt+/` over VNC) or **`prefix ?`** (tmux popup)
+Forgot a key? **`Super+/`** (rofi, `Ctrl+Alt+k` over VNC) or **`prefix ?`** (tmux popup)
 lists every i3 and tmux binding with a description and how often you've used it.
 Type to search; in rofi, `Enter` runs an i3 binding.
 
