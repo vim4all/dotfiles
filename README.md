@@ -12,7 +12,7 @@ Managed with [GNU Stow](https://www.gnu.org/software/stow/). nvim is a git submo
 - [Quick start](#quick-start)
 - [Screenshots](#screenshots)
 - [How it fits together](#how-it-fits-together)
-- [Cheat sheet](#cheat-sheet): [i3](#i3--super) · [project picker](#project-picker) · [tmux](#tmux--prefix-ctrla) · [dev workspaces](#dev-workspaces) · [Claude](#claude-code) · [kitty](#kitty) · [VimCommander](#vimcommander) · [Obsidian](#obsidian) · [bash](#bash) · [nvim](#nvim--leader-space)
+- [Cheat sheet](#cheat-sheet): [i3](#i3--super) · [project picker](#project-picker) · [tmux](#tmux--prefix-ctrla) · [dev workspaces](#dev-workspaces) · [Claude](#claude-code) · [kitty](#kitty) · [VimCommander](#vimcommander) · [Obsidian](#obsidian) · [bash](#bash) · [git](#git) · [ssh](#ssh) · [nvim](#nvim--leader-space)
 - [Managing the dotfiles](#managing-the-dotfiles)
 - [Packages](#packages)
 
@@ -312,7 +312,39 @@ My additions on top of its [own keys](https://github.com/vim4all/VimCommander#ke
 | `duh` · `path` · `week` | disk usage · PATH · ISO week |
 
 Prompt: `path [branch ●] [venv] ❯`, history shared live between terminals,
-`↑` / `↓` search history by the typed prefix.
+`↑` / `↓` search history by the typed prefix. Start a command with a space to keep it
+out of history.
+
+**fzf**, anywhere at the prompt:
+
+| Key | Does |
+|---|---|
+| `Ctrl+R` | fuzzy-search history, `Enter` puts the command on the prompt |
+| `Ctrl+T` | insert a file path mid-command (`scp ` `Ctrl+T`), with a preview |
+| `Alt+C` | cd into a subfolder |
+| `**` `Tab` | fuzzy completion: `vim src/**`, `kill **`, `ssh **` |
+
+`bat` and `fd` are Ubuntu's `batcat` and `fdfind`.
+
+### git
+
+| Alias | Does |
+|---|---|
+| `git st` · `git lg` · `git last` | short status · graph log · last commit with files |
+| `git amend` · `git undo` · `git unstage F` | add to last commit · uncommit (keep changes) · unstage |
+| `git wip` | commit everything as `wip` |
+| `git ds` · `git recent` | side-by-side diff · branches by last commit |
+
+Diffs go through [delta](https://github.com/dandavison/delta) when installed (`n` / `N`
+jump between files), plain `less` otherwise. `pull` rebases with autostash, `push` goes
+to the same-named branch, conflicts show the base (`diff3`) and `rerere` remembers
+resolutions.
+
+### ssh
+
+Connections are reused for 10 minutes (a second `ssh`, `scp` or `git push` to the same
+host starts instantly) and kept alive through Wi-Fi/Tailscale drops. Hosts go in
+`~/.ssh/config.local`, which has a commented example for a board that gets reflashed.
 
 ### nvim · leader `Space`
 
@@ -391,6 +423,7 @@ git submodule update --remote nvim/.config/nvim     # pull the newest nvim confi
 | `vimcommander` | `.config/VimCommander/`, `.local/bin/vimcommander`, `.desktop` | VimCommander settings as `config.example.json`; `install.sh` makes `config.json` from it (app: [VimCommander](https://github.com/vim4all/VimCommander) in `~/src/VimCommander`) |
 | `direnv` | `.config/direnv/lib/esp_idf.sh` | `use esp_idf` for `.envrc` files (cached ESP-IDF environment) |
 | `vnc` | `.vnc/xstartup`, `.config/systemd/user/vncserver@.service` | TigerVNC session (i3) and a user unit to start it at boot: `systemctl --user enable --now vncserver@:1` + `loginctl enable-linger` |
+| `ssh` | `.ssh/config` | generic defaults (connection reuse, keepalive); includes `~/.ssh/config.local` |
 | `nvim` | `.config/nvim/` | submodule → Neovim_lua_config |
 
 ### Local, never committed
@@ -403,6 +436,7 @@ This repo is public, so anything personal lives next to it, not in it:
 | `~/.config/VimCommander/config.json` | VimCommander settings + session state (open folders, history) | `install.sh`, from `config.example.json` |
 | `~/.config/rclone/shared-drive.env` | optional shared Google Drive: `SHARED_DRIVE_ID`, `SHARED_MOUNT`, `SHARED_NAME` | you |
 | `~/.config/rclone/rclone.conf` | Google tokens | `rclone config` |
+| `~/.ssh/config.local` | your SSH hosts | `install.sh` (commented template) |
 | `~/.vnc/passwd` | VNC password | `vncpasswd` |
 | `~/.claude/.credentials.json`, `~/.claude.json`, history | Claude login and sessions | Claude Code |
 | `**/.claude/settings.local.json` | per-project Claude permissions | Claude Code (git-ignored) |
@@ -411,4 +445,4 @@ Changed a VimCommander setting worth keeping? Copy it into `config.example.json`
 (use `@HOME@` for your home folder). Before pushing, `git diff --cached` is the last check
 that nothing personal slipped in.
 
-tmux plugins come from TPM; `~/.ssh` and `~/.gnupg` are never part of it.
+tmux plugins come from TPM. Only the generic `~/.ssh/config` is in the repo: keys, hosts and `~/.gnupg` never are.

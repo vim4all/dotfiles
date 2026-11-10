@@ -4,3 +4,45 @@
 #   	email = you@example.com
 [include]
 	path = ~/.gitconfig.local
+
+[init]
+	defaultBranch = main
+[core]
+	# delta if installed (./install.sh --deps), plain less otherwise
+	pager = command -v delta >/dev/null && delta || less -FRX
+[interactive]
+	diffFilter = command -v delta >/dev/null && delta --color-only || cat
+[delta]
+	navigate = true        # n / N jump between files in a diff
+	line-numbers = true
+	dark = true
+[pull]
+	rebase = true
+[rebase]
+	autoStash = true       # stash dirty changes around a pull/rebase
+	autoSquash = true      # honour fixup!/squash! commits
+[push]
+	default = current      # `git push` pushes the branch to the same name
+[fetch]
+	prune = true           # drop remote branches deleted upstream
+[rerere]
+	enabled = true         # remember how conflicts were resolved
+[merge]
+	conflictStyle = diff3  # show the base too (zdiff3 needs git >= 2.35)
+[diff]
+	algorithm = histogram
+	colorMoved = default
+[branch]
+	sort = -committerdate
+[alias]
+	st = status -sb
+	co = checkout
+	sw = switch
+	lg = log --graph --pretty=format:'%C(yellow)%h%C(reset) %s %C(dim)— %an, %ar%C(reset)%C(auto)%d'
+	last = log -1 --stat
+	amend = commit --amend --no-edit
+	undo = reset --soft HEAD~1     # uncommit, keep the changes staged
+	unstage = restore --staged
+	wip = !git add -A && git commit -m wip --no-verify
+	ds = -c delta.side-by-side=true diff   # side-by-side diff
+	recent = branch --sort=-committerdate --format='%(committerdate:relative)%09%(refname:short)'

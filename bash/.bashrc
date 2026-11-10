@@ -40,6 +40,9 @@
 #
 #  TOOLS
 #    zoxide      — smart cd replacement (use 'z' instead of 'cd')
+#    fzf         — Ctrl+R fuzzy history · Ctrl+T insert a file path · Alt+C cd
+#                  into a subfolder · **<Tab> fuzzy completion (vim **, kill **)
+#    bat / fd    — Ubuntu's batcat / fdfind under their usual names
 #    lesspipe    — makes 'less' handle binary/compressed files gracefully
 #
 #  PATH  (in order of precedence)
@@ -59,7 +62,7 @@ esac
 shopt -s histappend checkwinsize globstar cdspell autocd
 
 # ── History ────────────────────────────────────────────────────────────────────
-HISTCONTROL=ignoredups:erasedups   # no duplicate or space-prefixed entries
+HISTCONTROL=ignoreboth:erasedups  # no duplicates; a leading space keeps a command out
 HISTSIZE=100000
 HISTFILESIZE=200000
 HISTTIMEFORMAT="%F %T  "           # timestamp each history entry
@@ -180,6 +183,25 @@ fi
 
 # ── Tools ──────────────────────────────────────────────────────────────────────
 eval "$(zoxide init bash)"
+
+# ── fzf ───────────────────────────────────────────────────────────────────────
+command -v bat >/dev/null || alias bat='batcat'
+command -v fd  >/dev/null || alias fd='fdfind'
+if command -v fzf >/dev/null; then
+  export FZF_DEFAULT_COMMAND='fdfind --type f --hidden --follow --exclude .git'
+  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+  export FZF_ALT_C_COMMAND='fdfind --type d --hidden --follow --exclude .git'
+  # Catppuccin Mocha
+  export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border
+    --color=bg+:#313244,spinner:#f5e0dc,hl:#f38ba8,fg:#cdd6f4,header:#f38ba8
+    --color=info:#cba6f7,pointer:#f5e0dc,marker:#f5e0dc,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8'
+  export FZF_CTRL_T_OPTS="--preview 'batcat --color=always --style=numbers --line-range :200 {} 2>/dev/null'"
+  export FZF_ALT_C_OPTS="--preview 'ls -1F --color=always {} | head -50'"
+  for f in /usr/share/doc/fzf/examples/key-bindings.bash \
+           /usr/share/bash-completion/completions/fzf; do
+    [ -f "$f" ] && . "$f"
+  done
+fi
 # direnv: per-project environments from .envrc (ESP32 projects: `use esp_idf`,
 # see ~/.config/direnv/lib/esp_idf.sh). Messages are dimmed.
 if command -v direnv >/dev/null; then
