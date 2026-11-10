@@ -247,7 +247,20 @@ Options: `-c` continue the last AI conversation · `DIR SESSION` custom session 
 | Full layout for this project | `prefix D` in tmux (nvim + shell + Claude) |
 | Status line | model · context % · project/branch · 5 h and weekly limits |
 | Resume after reboot | automatic (tmux-resurrect → `claude --continue`) |
-| From the phone | ish → `ssh` over Tailscale → `tmux attach` |
+| From the phone | iSH → `ssh` over Tailscale → the picker opens by itself (see *Phone* below) |
+
+### Phone (iSH over SSH)
+
+- **Login opens the picker**: an SSH login runs `dev` (Super+P in the terminal, fzf):
+  `Enter` attach / start dev-lite · `Ctrl+R` with `claude --continue` · `Ctrl+K` kill session ·
+  `Esc` plain shell. `dev` works in any terminal; skip it once with `ssh -t host 'DEV_NO_PICKER=1 bash -l'`.
+- **`prefix M` menu**: one-key items for what needs Alt on the desktop (iOS has no Alt key):
+  `z` zoom · `g` lazygit · `r` run script · `b` build · `f` flash · `s` serial · `o` sessions ·
+  `n` next window · `t` scratch shell · `d` detach.
+- **Auto-zoom**: while an SSH client under 120 columns looks at a window, its Claude pane is zoomed;
+  it unzooms when the phone detaches (`prefix z` on the phone keeps it unzoomed). tmux 3.2 has no
+  hook for "the desktop is active again", so with both attached the desktop sees the zoom too.
+- **Colours**: over SSH `TERM=xterm` (iSH) becomes `xterm-256color`.
 
 ### ESP-IDF via direnv
 
