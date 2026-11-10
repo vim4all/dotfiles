@@ -154,13 +154,16 @@ Change the map in `i3/.config/i3/config` (`App → workspace` section); `xprop W
 
 ### Project picker
 
-`Super+P` lists running tmux sessions (`● name`) first, then `~/wrk_dir/*/*` and zoxide's folders.
+`Super+P` lists running tmux sessions (`● name  ·  folder`) first, then the projects in `~/wrk_dir/<group>/`
+(shown as `DCR/DCR_ESP32_Telemetry`; folders that already have a session are left out), then up to 15 of
+zoxide's frecent folders. `build`, `.cache` and the source subfolders of top-level projects (EVerest) are skipped.
 
 | Key | Action |
 |---|---|
 | `Enter` | open: attach the session, or start a dev-lite workspace in the folder |
 | `Alt+C` | start it with `claude --continue` |
 | `Alt+V` | open the folder (or the session's folder) in VimCommander |
+| `Alt+K` | kill the selected session (asks first), then reopen the picker |
 
 ### tmux · prefix `Ctrl+a`
 
@@ -171,6 +174,7 @@ Change the map in `i3/.config/i3/config` (`App → workspace` section); `xprop W
 | `Alt+H J K L` / `Alt+arrows` | move between panes (passes through to nvim splits) |
 | `Alt+G` | **lazygit** popup in the pane's folder |
 | `Alt+T` | scratch shell popup |
+| `Alt+R` | **run a project script**: pick a `run_*.sh` (build, flash, openocd, tests …) |
 
 **With `Ctrl+a` first**
 
@@ -186,10 +190,18 @@ Change the map in `i3/.config/i3/config` (`App → workspace` section); `xprop W
 | `e` | **vifm** popup | | `Ctrl+s` / `Ctrl+r` | save / restore sessions |
 | `C` | **VimCommander** here | | `r` | reload config |
 | `Enter` | copy mode (`v` select, `y` copy) | | `I` | install plugins (TPM) |
+| `B` | **build**: `run_build.sh` (or `run_rebuild.sh`) | | `F` | **flash**: `run_flash.sh` |
 
 Mouse works everywhere; selecting text copies it to the clipboard.
 Sessions are saved every 5 minutes and **restored automatically** after a reboot;
-panes that ran Claude come back as `claude --continue`.
+panes that ran Claude come back as `claude --continue`. At login i3 also reopens a terminal for every
+session that was on screen and moves it to the workspace it was on (`i3/.config/i3/scripts/sessions.py`,
+which records the layout every minute in `~/.local/state/i3-sessions.json`). Starting `tmux` by hand
+isn't needed after a reboot.
+
+`Alt+R`, `prefix B` and `prefix F` look for `run_*.sh` in the pane's folder and its parents (else the
+session folder) and type the command into the window's idle shell pane, so the output stays in view
+and Claude can read it. With no idle shell pane, a new one is split off.
 
 ### Dev workspaces
 

@@ -67,6 +67,9 @@ exec_always --no-startup-id feh --bg-scale ~/Pictures/duesenberg.jpg
 # Chat apps start at login and land on 5: chat (not in the VNC session on :1)
 exec --no-startup-id sh -c '[ "$DISPLAY" = ":1" ] || telegram-desktop -startintray'
 exec --no-startup-id sh -c '[ "$DISPLAY" = ":1" ] || discord --start-minimized'
+# Reopen the terminals of tmux sessions on their workspaces after a reboot,
+# then keep recording the layout every minute (scripts/sessions.py)
+exec --no-startup-id sh -c '[ "$DISPLAY" = ":1" ] || ~/.config/i3/scripts/sessions.py run'
 
 # ── Mouse ─────────────────────────────────────────────────────────────────────
 floating_modifier $mod
