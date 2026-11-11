@@ -10,3 +10,4 @@ __pycache__/
 # the tracked template is config.example.json (install.sh creates config.json)
 vimcommander/.config/VimCommander/config.json
 vimcommander/.config/VimCommander/undo.json
+vimcommander/.config/VimCommander/config-backups/
