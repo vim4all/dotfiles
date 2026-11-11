@@ -2,7 +2,7 @@
 """keys: a searchable cheat sheet of i3 + tmux bindings, and how much each is used.
 
   keys                 fzf list of every binding (tmux first inside tmux)
-  keys --tmux          the same, for the tmux popup (prefix + ?)
+  keys --tmux          the same, for the tmux popup (Alt+/)
   keys --rofi          rofi list (Super+/); Enter runs an i3 binding
   keys stats [-u] [-d N] [-s]
                        usage report: -u only unused, -d N last N days,

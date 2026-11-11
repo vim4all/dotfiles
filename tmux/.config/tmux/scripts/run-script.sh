@@ -1,7 +1,7 @@
 #!/bin/bash
 # Run one of the project's run_*.sh scripts in the window's shell pane.
 #   run-script.sh WINDOW_ID PANE_PATH SESSION_PATH [build|flash|NAME]
-# Without NAME: fzf picker (meant for a display-popup).
+# Without NAME: fzf picker (meant for a display-popup), last-run script first.
 # The project dir is the nearest folder above PANE_PATH holding run_*.sh,
 # falling back to SESSION_PATH. The command goes to the lowest idle shell pane
 # of the window (dev-lite: the shell under claude); if there is none, a new
@@ -19,9 +19,16 @@ done
 has_run "$dir" || dir="$SESSION_PATH"
 has_run "$dir" || { msg "no run_*.sh in $PANE_PATH or its parents"; exit 0; }
 
+# Last script run per project dir, so the picker lists it first
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/tmux-run-script"
+mkdir -p "$STATE"
+last_file="$STATE/$(printf '%s' "$dir" | md5sum | cut -c1-16)"
+last=$(cat "$last_file" 2>/dev/null)
+
 case "$NAME" in
   "")
-    script=$(cd "$dir" && ls run_*.sh | sed 's/^run_//; s/\.sh$//' |
+    script=$(cd "$dir" && { [ -n "$last" ] && [ -f "$dir/$last" ] && echo "$last"; ls run_*.sh; } |
+      awk '!seen[$0]++' | sed 's/^run_//; s/\.sh$//' |
       fzf --prompt "run ▸ " --header "$dir" --reverse \
           --preview "sed -n '1,40p' '$dir/run_{}.sh'" --preview-window right,60%) || exit 0
     script="run_$script.sh" ;;
@@ -45,5 +52,6 @@ if [ "$here" = "$dir" ]; then
 else
   cmd="cd $(printf '%q' "$dir") && bash $script"
 fi
+echo "$script" > "$last_file"
 tmux send-keys -t "$target" "$cmd" C-m
 msg "▶ $script"

@@ -26,7 +26,6 @@ prefix + I
 | `prefix + q` / `C-q` | Kill session |
 | `prefix + C-d` | Detach client |
 | `prefix + r` | Reload config |
-| `prefix + D` | Open dev layout (runs `~/.tmux/dev_1.sh`) |
 
 ### Panes
 
@@ -35,7 +34,25 @@ prefix + I
 | `prefix + g` / `C-g` | Split vertically (side by side) |
 | `prefix + h` / `C-h` | Split horizontally (top/bottom) |
 | `prefix + w` / `C-w` | Kill pane |
-| `prefix + D` | Dev layout at current path |
+
+### My tools (Alt, no prefix)
+
+Rule: `prefix` = tmux itself (sessions, windows, panes); `Alt` = my own tools.
+Bash's Alt+f/b/d/. and Alt+Shift (layout toggle) are left alone.
+
+| Key | Action |
+|-----|--------|
+| `Alt+t` | Scratch shell popup |
+| `Alt+g` | lazygit popup |
+| `Alt+o` | Fuzzy-pick a file and edit it |
+| `Alt+e` | vifm popup |
+| `Alt+v` | VimCommander in this folder |
+| `Alt+r` | Run a project `run_*.sh` (last-run first: `Alt+r Enter` repeats) |
+| `Alt+s` | Serial monitor |
+| `Alt+w` | Pomodoro timer |
+| `Alt+n` | Dev layout at current path |
+| `Alt+/` | Key cheat sheet |
+| `prefix + m` | Phone menu (same tools, for a keyboard without Alt) |
 
 ### Navigation
 

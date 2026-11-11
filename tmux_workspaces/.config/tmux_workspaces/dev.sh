@@ -151,7 +151,7 @@ else
   tmux split-window -v -t "$PANE_NVIM" -l $(( ROWS * 30 / 100 )) -c "$DIR"
   tmux send-keys -t "$PANE_AI"  "$AI_LINE" C-m
 fi
-# Pomodoro lives in the tmux status bar: prefix + P opens it (see ~/.tmux.conf)
+# Pomodoro lives in the tmux status bar: Alt+w opens it (see ~/.tmux.conf)
 tmux send-keys -t "$PANE_NVIM" '[ -f Session.vim ] && nvim -S || nvim .' C-m
 tmux select-pane -t "$PANE_NVIM"
 

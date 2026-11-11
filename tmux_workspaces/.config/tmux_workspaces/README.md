@@ -59,7 +59,7 @@ nvim restores `Session.vim` if present, otherwise opens the project directory.
 ## Pomodoro (`pom.py`)
 
 One global timer in the tmux session `pom`, shown in the tmux status bar (pom pushes it into the `@pom` tmux option).
-`prefix + P` opens it in a popup; `prefix + C-d` hides the popup and the timer keeps running.
+`Alt+w` opens it in a popup; `prefix + C-d` hides the popup and the timer keeps running.
 
 | Key | Action |
 |-----|--------|

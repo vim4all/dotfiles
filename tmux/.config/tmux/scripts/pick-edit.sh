@@ -1,6 +1,6 @@
 #!/bin/bash
 # Fuzzy-pick a file under the current pane's directory and open it in $EDITOR.
-# Used by the tmux popup on prefix + f.
+# Used by the tmux popup on Alt+o.
 command -v fzf >/dev/null || { echo "fzf is not installed:  sudo apt install fzf"; read -rn1; exit 1; }
 FD=$(command -v fdfind || command -v fd)
 if [ -n "$FD" ]; then
