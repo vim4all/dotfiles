@@ -14,7 +14,7 @@ Descriptions come from the configs: `#: text` on the line above an i3
 bindsym, `bind-key -N "text"` in tmux. Usage goes to
 ~/.local/state/keys/usage.log, one line per key press: <epoch> <src> <id>.
 """
-import fcntl, hashlib, json, os, re, shlex, subprocess, sys, tempfile, time
+import fcntl, hashlib, json, os, re, shlex, socket, struct, subprocess, sys, tempfile, time
 from collections import Counter
 
 HOME = os.path.expanduser('~')
@@ -125,26 +125,36 @@ def i3_log():
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except OSError:
         return                                     # already running for this i3
+    # Talk to the i3 IPC socket directly: piping `i3-msg -m` buffers its output
+    path = os.environ.get('I3SOCK') or subprocess.run(
+        ['i3', '--get-socketpath'], capture_output=True, text=True).stdout.strip()
+    MODE_EV, BINDING_EV = 0x80000002, 0x80000005
     while True:
         mode = 'default'
-        p = subprocess.Popen(['i3-msg', '-t', 'subscribe', '-m', '["binding","mode"]'],
-                             stdout=subprocess.PIPE, text=True)
-        for line in p.stdout:
-            try:
-                ev = json.loads(line)
-            except ValueError:
-                continue
-            if 'binding' in ev:
-                b = ev['binding']
-                key = i3_combo(b.get('event_state_mask', []), b.get('symbol') or str(b.get('input_code')))
-                with open(LOG, 'a') as f:
-                    f.write(f"{int(time.time())} i3 {key_token(mode.strip() + '/' + key)}\n")
-            elif 'change' in ev:
-                mode = ev['change']
-        p.wait()
+        try:
+            s = socket.socket(socket.AF_UNIX)
+            s.connect(path)
+            body = b'["binding","mode"]'
+            s.sendall(b'i3-ipc' + struct.pack('=II', len(body), 2) + body)   # 2 = SUBSCRIBE
+            f = s.makefile('rb')
+            while True:
+                head = f.read(14)
+                if len(head) < 14:
+                    break
+                n, typ = struct.unpack('=II', head[6:])
+                ev = json.loads(f.read(n) or b'{}')
+                if typ == BINDING_EV:
+                    b = ev.get('binding', {})
+                    key = i3_combo(b.get('event_state_mask', []), b.get('symbol') or str(b.get('input_code')))
+                    with open(LOG, 'a') as out:
+                        out.write(f"{int(time.time())} i3 {key_token(mode.strip() + '/' + key)}\n")
+                elif typ == MODE_EV:
+                    mode = ev.get('change', 'default')
+        except (OSError, ValueError):
+            pass
         # i3 restarted in place (resubscribe) or exited (stop)
         time.sleep(1)
-        if subprocess.run(['i3-msg', '-t', 'get_version'], capture_output=True).returncode:
+        if not os.path.exists(path):
             return
 
 
