@@ -10,9 +10,10 @@
 #   ~/some/other/dir          zoxide's frecent folders outside that list
 # Keys:
 #   Enter  — open (attach if it's a running session)
-#   Alt+c  — open a new workspace with `claude --continue`
-#   Alt+v  — open the folder (or the session's folder) in VimCommander
-#   Alt+k  — kill the selected session (asks first)
+#   Ctrl+r — open a new workspace with `claude --continue` (r = resume)
+#   Ctrl+o — open the folder (or the session's folder) in VimCommander (rofi only)
+#   Ctrl+k — kill the selected session (asks first)
+# Ctrl, not Alt, so the same keys work in fzf from the phone (no Alt key there).
 # A session that is already on screen gets focused; new terminals open on the
 # dev workspaces (1: dev, 2: dev, 3: ref — two per workspace, first free).
 TTY=0
@@ -86,8 +87,9 @@ choice=$(
     case "$key" in ctrl-r) exit 10 ;; ctrl-k) exit 12 ;; *) exit 0 ;; esac
   else
     rofi -dmenu -i -p "dev-$MODE" \
-      -mesg "Enter: open  ·  Alt+c: claude --continue  ·  Alt+v: VimCommander  ·  Alt+k: kill session" \
-      -kb-custom-1 "Alt+c" -kb-custom-2 "Alt+v" -kb-custom-3 "Alt+k" -no-show-icons
+      -mesg "Enter: open  ·  Ctrl+r: claude --continue  ·  Ctrl+o: VimCommander  ·  Ctrl+k: kill session" \
+      -kb-remove-to-eol "" \
+      -kb-custom-1 "Control+r" -kb-custom-2 "Control+o" -kb-custom-3 "Control+k" -no-show-icons
   fi
 )
 rc=$?
@@ -104,7 +106,7 @@ else
   dir="$WRK/$choice"
 fi
 
-# Alt+k: kill a session, then show the picker again
+# Ctrl+k: kill a session, then show the picker again
 if [ $rc -eq 12 ]; then
   [ -z "$session" ] && { say "kill only works on a running session (●)"; exit 0; }
   if [ $TTY = 1 ]; then
@@ -129,7 +131,7 @@ if [ $TTY = 1 ]; then
   cd "$dir" && exec bash "$WS" "${CONT[@]}" "$dir"
 fi
 
-# Alt+v: VimCommander
+# Ctrl+o: VimCommander
 [ $rc -eq 11 ] && exec "$HOME/.local/bin/vimcommander" "$dir"
 
 # the terminal may not pass i3's environment through, so set PATH explicitly

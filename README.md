@@ -12,7 +12,7 @@ Managed with [GNU Stow](https://www.gnu.org/software/stow/). nvim is a git submo
 - [Quick start](#quick-start)
 - [Screenshots](#screenshots)
 - [How it fits together](#how-it-fits-together)
-- [Cheat sheet](#cheat-sheet): [i3](#i3--super) · [project picker](#project-picker) · [tmux](#tmux--prefix-ctrla) · [dev workspaces](#dev-workspaces) · [key cheat sheet](#key-cheat-sheet) · [Claude](#claude-code) · [kitty](#kitty) · [VimCommander](#vimcommander) · [Obsidian](#obsidian) · [bash](#bash) · [git](#git) · [ssh](#ssh) · [nvim](#nvim--leader-space)
+- [Cheat sheet](#cheat-sheet): [key rules](#key-rules) · [i3](#i3--super) · [project picker](#project-picker) · [tmux](#tmux--alt-and-prefix-ctrla) · [dev workspaces](#dev-workspaces) · [key cheat sheet](#key-cheat-sheet) · [Claude](#claude-code) · [kitty](#kitty) · [VimCommander](#vimcommander) · [Obsidian](#obsidian) · [bash](#bash) · [git](#git) · [ssh](#ssh) · [nvim](#nvim--leader-space)
 - [Managing the dotfiles](#managing-the-dotfiles)
 - [Packages](#packages)
 
@@ -26,7 +26,7 @@ cd ~/dotfiles
 ./install.sh --deps      # apt packages, kitty, tmux TPM, then link everything
 ```
 
-Then open tmux and press `Ctrl+a` `I` to install the tmux plugins, and log into i3.
+Then open tmux and press `Ctrl+a I` to install the tmux plugins, and log into i3.
 
 | Command | Does |
 |---|---|
@@ -73,19 +73,19 @@ flowchart LR
     end
 
     P -->|Enter| LITE
-    P -->|Alt+C| LITE
-    P -->|Alt+V| VC
+    P -->|Ctrl+R| LITE
+    P -->|Ctrl+O| VC
     C --> VC
 
     subgraph tmux["🖥 tmux session (in kitty)"]
         LITE["dev-lite<br/>Claude ▸ shell"]
-        POP["popups<br/>Alt+G lazygit · ^a f files · ^a e vifm"]
+        POP["popups<br/>Alt+G lazygit · Alt+O files · Alt+E vifm"]
         LITE -.-> POP
     end
 
     VC["📁 VimCommander"] -->|":dev / F9"| LITE
     VC -->|":obs"| OBS
-    LITE -->|"^a C"| VC
+    LITE -->|"Alt+V"| VC
     O --> OBS["📓 Obsidian vault"]
     N -->|"99_Input/Inbox.md"| OBS
     LITE -->|"claude-notes"| OBS
@@ -95,45 +95,73 @@ flowchart LR
 ```
 
 **A typical day:** `Super+P` → pick a project → a tmux session opens with Claude on top
-and a shell below. Git in a popup (`Alt+G`), files in a popup (`Ctrl+a f`) or in
-VimCommander (`Ctrl+a C`). Ideas go to Obsidian with `Super+N`. After a reboot,
+and a shell below. Git in a popup (`Alt+G`), files in a popup (`Alt+O`, `Alt+E`) or in
+VimCommander (`Alt+V`). Ideas go to Obsidian with `Super+N`. After a reboot,
 tmux restores every session and Claude continues its last conversation.
 
 ---
 
 ## Cheat sheet
 
+### Key rules
+
+Each modifier belongs to one layer, so the modifier tells you who handles the key.
+
+| Modifier | Layer | For |
+|---|---|---|
+| `Super` | desktop (i3) | windows, workspaces, apps, system |
+| `Alt` | terminal (tmux, no prefix) | moving between panes, and all my tools |
+| `Ctrl+a`, then a key | tmux itself | sessions, windows, splits, copy mode |
+| `Ctrl` | the app or picker in front | its own keys; picker actions (they work on the phone too) |
+
+- `Shift` means *move*, *the other variant* or *careful*: `Super+Shift+H` moves a window, `Super+Shift+P` opens the full layout, `Super+Shift+Q` closes.
+- The layers mirror each other: `Super+H J K L` / `Alt+H J K L` move between windows / panes; `Super+/` / `Alt+/` show this cheat sheet.
+- The phone menu (`Ctrl+a m`) uses the same letters as the `Alt` keys.
+- Left free on purpose: `Alt+F B D .` (bash word moves), `Alt+C` (fzf cd), `Alt+Shift` (keyboard layout).
+
 ### i3 · `Super`
+
+**Apps**
 
 | Key | Action |
 |---|---|
 | `Super+Enter` | terminal (kitty; gnome-terminal on VNC `:1` or if kitty fails) |
 | `Super+D` / `Super+Tab` | app launcher / window switcher (rofi) |
-| `Super+P` / `Super+Shift+P` | project picker → **dev-lite** / dev-claude (full layout) |
+| `Super+P` / `Super+Shift+P` | [project picker](#project-picker) → **dev-lite** / full layout |
 | `Super+O` | Obsidian overlay, show / hide |
 | `Super+N` | quick capture → `99_Input/Inbox.md` |
 | `Super+C` | VimCommander |
-| `Super+-` / `Super+Shift+-` | scratchpad show / move window there |
-| `Super+H J K L` | focus (arrows work too) · add `Shift` to move |
-| `Super+B` / `Super+V` | split horizontal / vertical |
-| `Super+F` · `S` · `W` · `E` | fullscreen · stacking · tabbed · toggle split |
-| `Super+Shift+Space` / `Super+Space` | floating toggle / focus tiling ↔ floating |
-| `Super+R` | resize mode (`HJKL`, `Esc` to leave) |
-| `Super+1…0` / `Super+Shift+1…0` | go to / move window to workspace |
-| `Super+Esc` | previous workspace (pressing `Super+N` again on the current one also goes back) |
-| `Super+Shift+M` | re-apply monitor layout (after plugging monitors in or out) |
-| `Super+Shift+Q` | close window |
-| `Super+Shift+X` | lock (also after 10 min idle and on suspend) |
-| `Super+F8` | Bluetooth menu |
-| ``Super+` `` / `Alt+Shift` | keyboard layout us ↔ ua |
-| `Print` / `Super+Print` | screenshot area / screen (flameshot) |
-| `Super+F9` / `Super+F10` | unmount / mount Google Drive |
-| `Super+Shift+C` / `Super+Shift+R` / `Super+Shift+E` | reload / restart / exit i3 |
-| `Ctrl+Space` / `Ctrl+Shift+Space` / ``Ctrl+` `` | notifications: close / close all / history |
+| `Super+/` | key cheat sheet |
 
-Over VNC, put TigerVNC in fullscreen (`Ctrl+Alt+Enter`): it then grabs the keyboard and
-every `Super` key works as usual. In a window, the viewer's host keeps Super and Ctrl+Alt
-combinations for itself.
+**Windows and workspaces**
+
+| Key | Action |
+|---|---|
+| `Super+H J K L` / `+Shift` | focus / move (arrows work too) |
+| `Super+1…0` / `+Shift` | go to / move window to workspace |
+| `Super+Esc` | previous workspace (so does pressing the current workspace's number) |
+| `Super+Shift+Q` | close window |
+| `Super+F` | fullscreen |
+| `Super+B` / `Super+V` | next window opens to the right / below |
+| `Super+S` · `W` · `E` | stacking · tabbed · toggle split |
+| `Super+Shift+Space` / `Super+Space` | float / unfloat · focus tiling ↔ floating |
+| `Super+-` / `+Shift` | scratchpad: show / move window there |
+| `Super+R` | resize mode (`H J K L`, `Esc` to leave) |
+
+**System**
+
+| Key | Action |
+|---|---|
+| `Super+Backspace` / `+Shift` / `+Ctrl` | notification: close / bring the last one back / close all |
+| `Super+Shift+X` | lock (also after 10 min idle and on suspend) |
+| `Super+F7` | re-apply monitor layout (after plugging monitors in or out) |
+| `Super+F8` | Bluetooth menu |
+| `Super+F9` / `Super+F10` | unmount / mount Google Drive |
+| `Alt+Shift` or ``Super+` `` | keyboard layout us ↔ ua |
+| `Print` / `Super+Print` | screenshot area / screen (flameshot) |
+| `Super+Shift+C` · `R` · `E` | reload · restart · exit i3 |
+
+Over VNC, put TigerVNC in fullscreen (`Ctrl+Alt+Enter`) so it passes every `Super` key through.
 
 ### Workspaces
 
@@ -155,58 +183,60 @@ Change the map in `i3/.config/i3/config` (`App → workspace` section); `xprop W
 
 ### Project picker
 
-`Super+P` lists running tmux sessions (`● name  ·  folder`) first, then the projects in `~/wrk_dir/<group>/`
-(shown as `DCR/DCR_ESP32_Telemetry`; folders that already have a session are left out), then up to 15 of
-zoxide's frecent folders. `build`, `.cache` and the source subfolders of top-level projects (EVerest) are skipped.
+`Super+P` lists, top to bottom: running tmux sessions (`● name  ·  folder`), projects in `~/wrk_dir/<group>/`
+(as `DCR/DCR_ESP32_Telemetry`), then up to 15 of zoxide's frecent folders.
 
 | Key | Action |
 |---|---|
 | `Enter` | open: attach the session, or start a dev-lite workspace in the folder |
-| `Alt+C` | start it with `claude --continue` |
-| `Alt+V` | open the folder (or the session's folder) in VimCommander |
-| `Alt+K` | kill the selected session (asks first), then reopen the picker |
+| `Ctrl+R` | the same with `claude --continue` (resume) |
+| `Ctrl+O` | open the folder in VimCommander |
+| `Ctrl+K` | kill the session (asks first) |
 
-A session that is already on screen is **focused** rather than opened a second time. New terminals open on
-the dev workspaces: `1: dev`, then `2: dev`, then `3: ref`, two per workspace (the first one with room).
+The terminal version, `dev` (opens by itself on an SSH login), has the same keys except `Ctrl+O`.
+A session already on screen is focused, not opened twice. New terminals go to `1: dev`, then `2: dev`,
+then `3: ref`, two per workspace.
 
-### tmux · prefix `Ctrl+a`
+### tmux · `Alt` and prefix `Ctrl+a`
 
-**No prefix**
+**`Alt`: panes and my tools**
 
 | Key | Action |
 |---|---|
-| `Alt+H J K L` / `Alt+arrows` | move between panes (passes through to nvim splits) |
-| `Alt+G` | **lazygit** popup in the pane's folder |
+| `Alt+H J K L` / arrows | move between panes (into nvim splits too) |
 | `Alt+T` | scratch shell popup |
-| `Alt+R` | **run a project script**: pick a `run_*.sh` (build, flash, openocd, tests …) |
-| `Alt+S` | **serial monitor**: pick a `ttyUSB`/`ttyACM` port → picocom in a new window (`Enter` 115200, `Ctrl+B` other baud; quit picocom with `Ctrl+B Ctrl+X`) |
+| `Alt+G` | **lazygit** popup |
+| `Alt+O` | **open a file**: fuzzy-pick it, edit it |
+| `Alt+E` | **vifm** popup |
+| `Alt+V` | **VimCommander** in this folder |
+| `Alt+R` | **run a project script** (`run_*.sh`); `Alt+R` `Enter` repeats the last one |
+| `Alt+S` | **serial monitor**: pick a port → picocom (`Ctrl+B Ctrl+X` quits) |
+| `Alt+W` | Pomodoro timer |
+| `Alt+N` | full dev layout in this folder |
+| `Alt+/` | key cheat sheet |
 
-**With `Ctrl+a` first**
+Tools open in the pane's folder. Close a popup with `exit` / `q`, or hide it with `Ctrl+a Ctrl+d`
+(scratch and Pomodoro keep running).
+
+`Alt+R` finds `run_*.sh` in the pane's folder or a parent (else the session folder) and types it into the
+window's idle shell pane (or a new one), so the output stays in view and Claude can read it.
+
+**`Ctrl+a`, then:**
 
 | Key | Action | | Key | Action |
 |---|---|---|---|---|
-| `g` | split side by side | | `t` | new window |
-| `h` | split top / bottom | | `PgUp` / `PgDn` | previous / next window |
-| `w` | kill pane | | `n` | new session |
-| `q` | kill session | | `o` | **session switcher** (fuzzy) |
-| `j` `k` `←` `→` | select pane | | `Ctrl+d` | detach |
-| `H J K L` | resize pane (repeatable) | | `D` | full dev layout here |
-| `f` | **pick a file** (fzf) → editor | | `P` | Pomodoro popup |
-| `e` | **vifm** popup | | `Ctrl+s` / `Ctrl+r` | save / restore sessions |
-| `C` | **VimCommander** here | | `r` | reload config |
-| `Enter` | copy mode (`v` select, `y` copy) | | `I` | install plugins (TPM) |
-| `B` | **build**: `run_build.sh` (or `run_rebuild.sh`) | | `F` | **flash**: `run_flash.sh` |
+| `t` | new window | | `g` / `h` | split side by side / top-bottom |
+| `PgUp` / `PgDn` | previous / next window | | `j` `k` `←` `→` | select pane (no Alt needed) |
+| `n` | new session | | `H J K L` | resize pane (repeatable) |
+| `o` | **session switcher** (fuzzy) | | `w` | kill pane |
+| `Ctrl+d` | detach | | `q` | kill session |
+| `Enter` | copy mode (`v` select, `y` copy) | | `m` | phone menu |
+| `Ctrl+s` / `Ctrl+r` | save / restore sessions | | `r` | reload config |
+| `I` | install plugins (TPM) | | `?` | tmux's own key list |
 
-Mouse works everywhere; selecting text copies it to the clipboard.
-Sessions are saved every 5 minutes and **restored automatically** after a reboot;
-panes that ran Claude come back as `claude --continue`. At login i3 also reopens a terminal for every
-session that was on screen and moves it to the workspace it was on (`i3/.config/i3/scripts/sessions.py`,
-which records the layout every minute in `~/.local/state/i3-sessions.json`). Starting `tmux` by hand
-isn't needed after a reboot.
-
-`Alt+R`, `prefix B` and `prefix F` look for `run_*.sh` in the pane's folder and its parents (else the
-session folder) and type the command into the window's idle shell pane, so the output stays in view
-and Claude can read it. With no idle shell pane, a new one is split off.
+Mouse works everywhere; selecting text copies it. Sessions are saved every 5 minutes and **restored after a
+reboot**: Claude panes come back as `claude --continue`, and i3 reopens a terminal for every session that was
+on screen, on the same workspace (`i3/.config/i3/scripts/sessions.py`). No need to start `tmux` by hand.
 
 ### Dev workspaces
 
@@ -240,7 +270,7 @@ Options: `-c` continue the last AI conversation · `DIR SESSION` custom session 
 
 ### Key cheat sheet
 
-Forgot a key? **`Super+/`** (rofi) or **`prefix ?`** (tmux popup)
+Forgot a key? **`Super+/`** (rofi) or **`Alt+/`** (tmux popup)
 lists every i3 and tmux binding with a description and how often you've used it.
 Type to search; in rofi, `Enter` runs an i3 binding.
 
@@ -264,21 +294,20 @@ Descriptions live in the configs: a `#: text` line right above an i3 `bindsym`, 
 | Claude with the Obsidian vault | `claude-notes` (vault rules in its `CLAUDE.md`) |
 | Needs you / finished | desktop notification + bell → tmux window and i3 workspace get flagged |
 | Which sessions wait | i3 bar, left: `⚠ name` needs a permission answer (red), `✓ name` finished (goes away once you focus it); click → jump to it |
-| Full layout for this project | `prefix D` in tmux (nvim + shell + Claude) |
+| Full layout for this project | `Alt+N` in tmux (nvim + shell + Claude) |
 | Status line | model · context % · project/branch · 5 h and weekly limits |
 | Resume after reboot | automatic (tmux-resurrect → `claude --continue`) |
 | From the phone | iSH → `ssh` over Tailscale → the picker opens by itself (see *Phone* below) |
 
 ### Phone (iSH over SSH)
 
-- **Login opens the picker**: an SSH login runs `dev` (Super+P in the terminal, fzf):
-  `Enter` attach / start dev-lite · `Ctrl+R` with `claude --continue` · `Ctrl+K` kill session ·
-  `Esc` plain shell. `dev` works in any terminal; skip it once with `ssh -t host 'DEV_NO_PICKER=1 bash -l'`.
-- **`prefix M` menu**: one-key items for what needs Alt on the desktop (iOS has no Alt key):
-  `z` zoom · `g` lazygit · `r` run script · `b` build · `f` flash · `s` serial · `o` sessions ·
-  `n` next window · `t` scratch shell · `d` detach.
+- **Login opens the picker** (`dev`, the [project picker](#project-picker) in fzf): `Enter` open ·
+  `Ctrl+R` resume Claude · `Ctrl+K` kill · `Esc` plain shell. Skip it once with `ssh -t host 'DEV_NO_PICKER=1 bash -l'`.
+- **`Ctrl+a m` menu** for everything the `Alt` keys do (iOS has no Alt), same letters:
+  `t` scratch · `g` lazygit · `o` open file · `e` vifm · `r` run script · `s` serial · `w` Pomodoro · `/` keys;
+  then tmux: `z` zoom · `a` sessions · `n` next window · `d` detach.
 - **Auto-zoom**: while an SSH client under 120 columns looks at a window, its Claude pane is zoomed;
-  it unzooms when the phone detaches (`prefix z` on the phone keeps it unzoomed). tmux 3.2 has no
+  it unzooms when the phone detaches (`Ctrl+a z` on the phone keeps it unzoomed). tmux 3.2 has no
   hook for "the desktop is active again", so with both attached the desktop sees the zoom too.
 - **Colours**: over SSH `TERM=xterm` (iSH) becomes `xterm-256color`.
 
@@ -444,7 +473,7 @@ git submodule update --remote nvim/.config/nvim     # pull the newest nvim confi
 | `direnv` | `.config/direnv/lib/esp_idf.sh` | `use esp_idf` for `.envrc` files (cached ESP-IDF environment) |
 | `vnc` | `.vnc/xstartup`, `.config/systemd/user/vncserver@.service` | TigerVNC session (i3) and a user unit to start it at boot: `systemctl --user enable --now vncserver@:1` + `loginctl enable-linger` |
 | `ssh` | `.ssh/config` | generic defaults (connection reuse, keepalive); includes `~/.ssh/config.local` |
-| `keys` | `.local/bin/keys`, `keys-log` | key cheat sheet (`Super+/`, `prefix ?`) and usage counting (`keys stats`) |
+| `keys` | `.local/bin/keys`, `keys-log` | key cheat sheet (`Super+/`, `Alt+/`) and usage counting (`keys stats`) |
 | `nvim` | `.config/nvim/` | submodule → Neovim_lua_config |
 
 ### Local, never committed

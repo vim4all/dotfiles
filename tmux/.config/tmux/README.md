@@ -38,7 +38,7 @@ prefix + I
 ### My tools (Alt, no prefix)
 
 Rule: `prefix` = tmux itself (sessions, windows, panes); `Alt` = my own tools.
-Bash's Alt+f/b/d/. and Alt+Shift (layout toggle) are left alone.
+Bash's Alt+f/b/d/., fzf's Alt+c and Alt+Shift (layout toggle) are left alone. Full rules: the main README's *Key rules*.
 
 | Key | Action |
 |-----|--------|

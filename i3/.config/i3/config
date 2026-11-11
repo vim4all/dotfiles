@@ -134,7 +134,7 @@ bindsym $mod+d       exec --no-startup-id rofi -show drun
 bindsym $mod+Tab     exec --no-startup-id rofi -show window
 
 # Project picker → tmux dev workspace (dev-lite default / dev-claude full layout)
-# Running sessions are listed first; Alt+c in the picker = claude --continue
+# Running sessions are listed first; Ctrl+r in the picker = claude --continue
 #: Project picker → dev-lite (Claude + shell)
 bindsym $mod+p       exec --no-startup-id ~/.config/i3/scripts/dev-picker.sh lite
 #: Project picker → full layout (nvim + shell + Claude)
@@ -161,9 +161,20 @@ bindsym $mod+grave    exec --no-startup-id ~/.config/i3/scripts/toggle-kbd.py
 bindsym Print            exec --no-startup-id flameshot gui
 #: Screenshot: whole screen
 bindsym $mod+Print       exec --no-startup-id flameshot screen
-# Re-apply the monitor layout after plugging monitors in or out
+# Re-apply the monitor layout after plugging monitors in or out (F7 = the
+# ThinkPad's display key; Super+F-keys are the system row: F7 monitors,
+# F8 Bluetooth, F9/F10 Google Drive)
 #: Re-apply monitor layout
-bindsym $mod+Shift+m exec --no-startup-id ~/.config/i3/scripts/monitors.sh
+bindsym $mod+F7 exec --no-startup-id ~/.config/i3/scripts/monitors.sh
+
+# Notifications (dunst): on Super like every other desktop key, so Ctrl+Space
+# reaches the terminal / nvim again
+#: Notification: close
+bindsym $mod+BackSpace       exec --no-startup-id dunstctl close
+#: Notification: bring the last one back
+bindsym $mod+Shift+BackSpace exec --no-startup-id dunstctl history-pop
+#: Notifications: close all
+bindsym $mod+Ctrl+BackSpace  exec --no-startup-id dunstctl close-all
 
 # ── Focus ─────────────────────────────────────────────────────────────────────
 bindsym $mod+h     focus left
