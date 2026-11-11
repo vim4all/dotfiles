@@ -131,8 +131,9 @@ tmux restores every session and Claude continues its last conversation.
 | `Super+Shift+C` / `Super+Shift+R` / `Super+Shift+E` | reload / restart / exit i3 |
 | `Ctrl+Space` / `Ctrl+Shift+Space` / ``Ctrl+` `` | notifications: close / close all / history |
 
-Over VNC (Super is taken by the client): `Ctrl+Alt+Enter` terminal · `Ctrl+Alt+D` launcher ·
-`Ctrl+Alt+Q` close · `Ctrl+Alt+P` / `Ctrl+Alt+Shift+P` picker · `Ctrl+Alt+O` Obsidian.
+Over VNC, put TigerVNC in fullscreen (`Ctrl+Alt+Enter`): it then grabs the keyboard and
+every `Super` key works as usual. In a window, the viewer's host keeps Super and Ctrl+Alt
+combinations for itself.
 
 ### Workspaces
 
@@ -239,7 +240,7 @@ Options: `-c` continue the last AI conversation · `DIR SESSION` custom session 
 
 ### Key cheat sheet
 
-Forgot a key? **`Super+/`** (rofi, `Ctrl+Alt+k` over VNC) or **`prefix ?`** (tmux popup)
+Forgot a key? **`Super+/`** (rofi) or **`prefix ?`** (tmux popup)
 lists every i3 and tmux binding with a description and how often you've used it.
 Type to search; in rofi, `Enter` runs an i3 binding.
 

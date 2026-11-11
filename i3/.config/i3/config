@@ -318,22 +318,5 @@ bindsym $mod+F10 exec --no-startup-id ~/.config/i3/scripts/mount-gdrive.sh
 # Key cheat sheet: search every i3 + tmux binding, Enter runs an i3 one
 #: Key cheat sheet (Enter runs it)
 bindsym $mod+slash exec --no-startup-id ~/.local/bin/keys --rofi
-#: Key cheat sheet (VNC; Ctrl+Alt+/ is swallowed by TigerVNC)
-bindsym Ctrl+Mod1+k exec --no-startup-id ~/.local/bin/keys --rofi
 # Count binding use for `keys stats` (one logger per i3, survives restarts)
 exec_always --no-startup-id ~/.local/bin/keys i3-log
-
-# ── VNC fallbacks ───────────────────────────────────────────────────────────
-# The Win key is grabbed by the VNC client's host, so Ctrl+Alt stands in for it
-#: Terminal (VNC)
-bindsym Ctrl+Mod1+Return exec --no-startup-id ~/.config/i3/scripts/term.sh
-#: App launcher (VNC)
-bindsym Ctrl+Mod1+d      exec --no-startup-id rofi -show drun
-#: Close window (VNC)
-bindsym Ctrl+Mod1+q      kill
-#: Project picker → dev-lite (VNC)
-bindsym Ctrl+Mod1+p      exec --no-startup-id ~/.config/i3/scripts/dev-picker.sh lite
-#: Project picker → full layout (VNC)
-bindsym Ctrl+Mod1+Shift+p exec --no-startup-id ~/.config/i3/scripts/dev-picker.sh claude
-#: Obsidian overlay (VNC)
-bindsym Ctrl+Mod1+o      exec --no-startup-id ~/.config/i3/scripts/obsidian-toggle.py
