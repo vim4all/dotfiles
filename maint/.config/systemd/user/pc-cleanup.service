@@ -1,0 +1,6 @@
+[Unit]
+Description=Monthly cleanup of unused docker data (pc-cleanup)
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/pc-cleanup

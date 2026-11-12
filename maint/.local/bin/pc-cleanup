@@ -1,0 +1,26 @@
+#!/bin/bash
+# Tidy up what grows by itself; run monthly by pc-cleanup.timer, or by hand.
+# Only removes what nothing uses:
+#   docker: stopped containers and build cache unused for 30 days, untagged
+#           images, unnamed volumes no container uses (named ones are kept)
+# Journal, snap revisions and apt are capped by system/setup.sh, so not here.
+set -uo pipefail
+
+free_b() { df -B1 --output=avail / | tail -1; }
+before=$(free_b)
+log() { echo "pc-cleanup: $*"; }
+
+if command -v docker >/dev/null && docker info >/dev/null 2>&1; then
+    log "docker containers: $(docker container prune -f --filter until=720h | tail -1)"
+    log "docker images:     $(docker image prune -f | tail -1)"
+    log "docker volumes:    $(docker volume prune -f | tail -1)"
+    log "docker build cache: $(docker builder prune -f --filter until=720h | tail -1)"
+else
+    log "docker not running, skipped"
+fi
+
+freed=$(( $(free_b) - before ))
+(( freed < 0 )) && freed=0
+msg="freed $(numfmt --to=iec "$freed"), $(df -h --output=avail / | tail -1 | tr -d ' ') free on /"
+log "$msg"
+notify-send -a pc-cleanup "Monthly cleanup" "$msg" 2>/dev/null || true

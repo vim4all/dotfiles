@@ -1,0 +1,11 @@
+[Unit]
+Description=Run pc-cleanup monthly
+
+[Timer]
+OnCalendar=monthly
+# catch up after the PC was off on the 1st
+Persistent=true
+RandomizedDelaySec=1h
+
+[Install]
+WantedBy=timers.target

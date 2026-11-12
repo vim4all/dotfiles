@@ -1,0 +1,5 @@
+# Compressed swap in RAM (zram-tools). 35 % of 23 GB ≈ 8 GB; zstd packs ~3:1,
+# so it costs ~2-3 GB of real RAM only when it's actually used.
+ALGO=zstd
+PERCENT=35
+PRIORITY=100
