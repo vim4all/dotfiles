@@ -33,6 +33,7 @@ Then open tmux and press `Ctrl+a I` to install the tmux plugins, and log into i3
 | `./install.sh` | (re)link every package into `$HOME` |
 | `./install.sh i3 kitty` | link only these packages |
 | `./install.sh --deps` | install dependencies first |
+| `sudo system/setup.sh` | the `/etc` settings stow can't link: zram swap, battery limit, Docker and journal log caps, keyboard, delta |
 
 It also creates the [local files](#local-never-committed) that are not in this public repo.
 
@@ -170,14 +171,15 @@ with fewer screens (undocked, VNC) everything falls back to the one available.
 
 | Key | Workspace | Monitor | Auto-assigned |
 |---|---|---|---|
-| `Super+1` | `1: dev` | DP (main) | |
-| `Super+2` | `2: dev` | VGA | |
+| `Super+1` | `1: dev` | VGA (left) | |
+| `Super+2` | `2: dev` | DP (main) | |
 | `Super+3` | `3: ref` | laptop | |
 | `Super+4` | `4: web` | DP | |
 | `Super+5` | `5: chat` | laptop | Telegram, Discord, Thunderbird (tabbed; Telegram + Discord start at login) |
 | `Super+6` | `6: media` | VGA | mpv, VLC, Spotify |
 | `Super+7` | `7: eda` | DP | KiCad, STM32CubeMX |
-| `Super+8…0` | spare | any | |
+| `Super+8` `9` | spare | any | |
+| `Super+0` | `10: sys` | laptop | monitoring: btop, lazydocker |
 
 Change the map in `i3/.config/i3/config` (`App → workspace` section); `xprop WM_CLASS` shows a window's class.
 
@@ -194,7 +196,7 @@ Change the map in `i3/.config/i3/config` (`App → workspace` section); `xprop W
 | `Ctrl+K` | kill the session (asks first) |
 
 The terminal version, `dev` (opens by itself on an SSH login), has the same keys except `Ctrl+O`.
-A session already on screen is focused, not opened twice. New terminals go to `1: dev`, then `2: dev`,
+A session already on screen is focused, not opened twice. New terminals go to `2: dev` (main screen), then `1: dev`,
 then `3: ref`, two per workspace.
 
 ### tmux · `Alt` and prefix `Ctrl+a`
@@ -326,6 +328,7 @@ environment per IDF commit (`~/.cache/direnv-esp-idf/`), so after that it's inst
 | `Ctrl+=` / `Ctrl+-` / `Ctrl+0` | font bigger / smaller / reset |
 | `Ctrl+click` | open link |
 | `Ctrl+Shift+F5` | reload config |
+| `Ctrl+Shift+A`, then `1` · `D` · `M` / `L` | background: solid · back to 93 % · more / less opaque |
 
 ### VimCommander
 
@@ -465,7 +468,7 @@ git submodule update --remote nvim/.config/nvim     # pull the newest nvim confi
 | `dunst` | `.config/dunst/` | notifications |
 | `picom` | `.config/picom/` | compositor |
 | `rofi` | `.config/rofi/` | launcher and picker theme |
-| `kitty` | `.config/kitty/` | terminal |
+| `kitty` | `.config/kitty/` | terminal (background 93 % opaque through picom) |
 | `tmux` | `.config/tmux/`, `.tmux.conf` | tmux config, file picker script |
 | `tmux_workspaces` | `.config/tmux_workspaces/` | dev workspace launchers, Pomodoro |
 | `claude` | `.claude/settings.json`, `statusline.py`, `hooks/notify.py` | Claude Code settings |
@@ -473,8 +476,24 @@ git submodule update --remote nvim/.config/nvim     # pull the newest nvim confi
 | `direnv` | `.config/direnv/lib/esp_idf.sh` | `use esp_idf` for `.envrc` files (cached ESP-IDF environment) |
 | `vnc` | `.vnc/xstartup`, `.config/systemd/user/vncserver@.service` | TigerVNC session (i3) and a user unit to start it at boot: `systemctl --user enable --now vncserver@:1` + `loginctl enable-linger` |
 | `ssh` | `.ssh/config` | generic defaults (connection reuse, keepalive); includes `~/.ssh/config.local` |
+| `maint` | `.local/bin/pc-cleanup`, `pc-cleanup.timer` | monthly cleanup of unused Docker data, with a notification; `systemctl --user enable --now pc-cleanup.timer` |
 | `keys` | `.local/bin/keys`, `keys-log` | key cheat sheet (`Super+/`, `Alt+/`) and usage counting (`keys stats`) |
 | `nvim` | `.config/nvim/` | submodule → Neovim_lua_config |
+
+### System settings (`system/`, not stowed)
+
+Files under `/etc` belong to root, so `system/setup.sh` copies them in (with `sudo`; safe to run again):
+
+| File | Does |
+|---|---|
+| `etc/default/zramswap` | ~8 GB compressed swap in RAM (zstd), so big builds slow down instead of being killed |
+| `etc/udev/rules.d/90-battery-charge-limit.rules` | ThinkPad battery charges to 80 %, resumes below 75 % |
+| `etc/docker/daemon.json` | container logs max 3 × 10 MB |
+| `etc/systemd/journald.conf.d/size.conf` | system journal max 500 MB |
+
+It also installs `ncdu` and [delta](https://github.com/dandavison/delta) (not packaged for Ubuntu 22.04),
+sets the keyboard default to `us,ua` + `Alt+Shift` (a Bluetooth keyboard that reconnects would otherwise
+come back as plain `us`) and keeps 2 snap revisions instead of 3.
 
 ### Local, never committed
 

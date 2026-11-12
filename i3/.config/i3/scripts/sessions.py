@@ -31,8 +31,8 @@ TERM = os.path.expanduser("~/.config/i3/scripts/term.sh")
 TITLE_RE = re.compile(r"^([^:\s]+):\d+:")
 BOOT_SESSION = "_boot"
 SAVE_EVERY = 60
-# Keep in sync with $ws1..$ws3 in the i3 config
-DEV_WORKSPACES = ["1: dev", "2: dev", "3: ref"]
+# Keep in sync with $ws1..$ws3 in the i3 config. Main screen (2) first, then left (1)
+DEV_WORKSPACES = ["2: dev", "1: dev", "3: ref"]
 PER_WORKSPACE = 2
 
 

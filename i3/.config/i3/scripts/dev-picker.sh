@@ -15,7 +15,7 @@
 #   Ctrl+k — kill the selected session (asks first)
 # Ctrl, not Alt, so the same keys work in fzf from the phone (no Alt key there).
 # A session that is already on screen gets focused; new terminals open on the
-# dev workspaces (1: dev, 2: dev, 3: ref — two per workspace, first free).
+# dev workspaces (2: dev main screen, 1: dev left, 3: ref — two per workspace, first free).
 TTY=0
 [ "$1" = "--tty" ] && { TTY=1; shift; }
 MODE="${1:-lite}"
