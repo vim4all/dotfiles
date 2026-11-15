@@ -7,13 +7,18 @@ Catppuccin Mocha everywhere. Ubuntu 22.04 on a ThinkPad.
 Managed with [GNU Stow](https://www.gnu.org/software/stow/). nvim is a git submodule
 ([Neovim_lua_config](https://github.com/vim4all/Neovim_lua_config)).
 
+Same keys and look on the other two platforms:
+[dotfiles-windows](https://github.com/vim4all/dotfiles-windows) (GlazeWM, Flow Launcher; terminal work in WSL with this repo) and
+[dotfiles-macos](https://github.com/vim4all/dotfiles-macos) (AeroSpace; tmux, nvim, kitty from this repo).
+See [Three platforms](#three-platforms).
+
 ![Demo: pick a project, Claude edits the code, build, review and commit in a lazygit popup, then explore the project in VimCommander](docs/screenshots/demo.gif)
 
 - [Quick start](#quick-start)
 - [Screenshots](#screenshots)
 - [How it fits together](#how-it-fits-together)
 - [Cheat sheet](#cheat-sheet): [key rules](#key-rules) · [i3](#i3--alt) · [project picker](#project-picker) · [tmux](#tmux--ctrl-and-prefix-ctrla) · [dev workspaces](#dev-workspaces) · [key cheat sheet](#key-cheat-sheet) · [Claude](#claude-code) · [kitty](#kitty) · [VimCommander](#vimcommander) · [Obsidian](#obsidian) · [bash](#bash) · [git](#git) · [ssh](#ssh) · [nvim](#nvim--leader-space)
-- [Managing the dotfiles](#managing-the-dotfiles)
+- [Managing the dotfiles](#managing-the-dotfiles): [nvim submodule](#nvim-submodule) · [three platforms](#three-platforms)
 - [Packages](#packages)
 
 ---
@@ -34,6 +39,7 @@ Then open tmux and press `Ctrl+a I` to install the tmux plugins, and log into i3
 | `./install.sh i3 kitty` | link only these packages |
 | `./install.sh --deps` | install dependencies first |
 | `sudo system/setup.sh` | the `/etc` settings stow can't link: zram swap, battery limit, Docker and journal log caps, keyboard, delta |
+| `./sync.sh` | pull this repo and the Windows / macOS ones next to it, check their keys still match ([three platforms](#three-platforms)) |
 
 It also creates the [local files](#local-never-committed) that are not in this public repo.
 
@@ -118,7 +124,8 @@ Each modifier belongs to one layer, so the modifier tells you who handles the ke
 | `Super` / `Win` / `Cmd` | the OS | `Super+Space` switches keyboard layout us ↔ ua (as on Windows) |
 
 `Alt` is the only window-manager modifier that works on Linux, Windows and macOS, so the desktop owns it
-and tmux stays off it. The same rules apply on Windows (GlazeWM) and macOS (AeroSpace); see the windows and macos dotfiles repos.
+and tmux stays off it. The same rules apply on Windows (GlazeWM) and macOS (AeroSpace); see
+[dotfiles-windows](https://github.com/vim4all/dotfiles-windows) and [dotfiles-macos](https://github.com/vim4all/dotfiles-macos).
 
 - `Shift` means *move*, *the other variant* or *careful*: `Alt+Shift+H` moves a window, `Alt+Shift+P` opens the full layout, `Alt+Shift+Q` closes.
 - The layers mirror each other: `Alt+H J K L` / `Ctrl+H J K L` move between windows / panes; `Alt+/` / `Ctrl+a /` show this cheat sheet.
@@ -464,6 +471,42 @@ cd ~/dotfiles && git add nvim/.config/nvim && git commit -m "nvim: bump"
 git submodule update --remote nvim/.config/nvim     # pull the newest nvim config
 ```
 
+### Three platforms
+
+One desktop, three repos. Each holds what only its platform needs; the terminal side
+(tmux, nvim, git, kitty, bash) lives here and is shared:
+
+| Repo | Window manager | Picker | Terminal side | Install |
+|---|---|---|---|---|
+| [dotfiles](https://github.com/vim4all/dotfiles) (this one) | i3 | rofi | everything here | `./install.sh --deps` |
+| [dotfiles-windows](https://github.com/vim4all/dotfiles-windows) | GlazeWM | Flow Launcher | this repo, in WSL | `.\install.ps1 -Deps` |
+| [dotfiles-macos](https://github.com/vim4all/dotfiles-macos) | AeroSpace | Raycast | tmux, nvim, git, kitty, keys from this repo | `./install.sh --deps --shared` |
+
+Keep them next to each other, in either layout:
+
+```
+~/dotfiles  ~/dotfiles-windows  ~/dotfiles-macos      # or  .../dotfiles/{linux,windows,macos}
+```
+
+```mermaid
+flowchart LR
+    E["change a key<br/>in one WM config"] --> S["./sync.sh<br/>(sync.ps1 on Windows)"]
+    S --> P["pull all three repos,<br/>list what's not pushed"]
+    S --> K["tools/keymap-check.py:<br/>Alt keys missing on a platform"]
+    K --> F["add the key to the other<br/>two configs, or note why not"]
+```
+
+| Command | Does |
+|---|---|
+| `./sync.sh` | fetch and fast-forward the three repos (dirty ones are left alone), list commits not pushed yet |
+| `./sync.sh --clone` | also clone the ones missing next to this repo |
+| `./sync.sh --push` | also push the clean ones that are ahead |
+| `tools/keymap-check.py` | Alt keys that are not bound on every platform (`--all`: the full table, i3 · GlazeWM · AeroSpace) |
+
+`sync.sh` is the same file here and in dotfiles-macos; Windows has `sync.ps1` (it runs git for this
+repo inside WSL, because of the symlinks). kitty reads `linux.conf` or `macos.conf` next to
+`kitty.conf`, so one config serves both.
+
 ---
 
 ## Packages
@@ -477,7 +520,7 @@ git submodule update --remote nvim/.config/nvim     # pull the newest nvim confi
 | `dunst` | `.config/dunst/` | notifications |
 | `picom` | `.config/picom/` | compositor |
 | `rofi` | `.config/rofi/` | launcher and picker theme |
-| `kitty` | `.config/kitty/` | terminal (background 93 % opaque through picom) |
+| `kitty` | `.config/kitty/` | terminal (background 93 % opaque through picom); `linux.conf` / `macos.conf` per OS (Option as Alt on macOS) |
 | `tmux` | `.config/tmux/`, `.tmux.conf` | tmux config, file picker script |
 | `tmux_workspaces` | `.config/tmux_workspaces/` | dev workspace launchers, Pomodoro |
 | `claude` | `.claude/settings.json`, `statusline.py`, `hooks/notify.py` | Claude Code settings |
