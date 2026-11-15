@@ -218,7 +218,7 @@ then `3: ref`, two per workspace.
 | `e` | **vifm** popup |
 | `v` | **VimCommander** in this folder |
 | `r` | **run a project script** (`run_*.sh`); `Ctrl+a r` `Enter` repeats the last one |
-| `s` | **serial monitor**: pick a port → picocom (`Ctrl+B Ctrl+X` quits) |
+| `S` | **serial monitor**: pick a port → picocom (`Ctrl+B Ctrl+X` quits) |
 | `w` | Pomodoro timer |
 | `n` | full dev layout in this folder |
 | `/` | key cheat sheet |
@@ -236,7 +236,8 @@ window's idle shell pane (or a new one), so the output stays in view and Claude 
 | `Ctrl+t` | new window | | `Ctrl+g` / `h` or `Ctrl+h` | split side by side / top-bottom |
 | `PgUp` / `PgDn` | previous / next window | | `j` `k` `←` `→` | select pane |
 | `Ctrl+n` | new session | | `H J K L` | resize pane (repeatable) |
-| `Ctrl+o` | **session switcher** (fuzzy) | | `Ctrl+w` | kill pane |
+| `s` | **sessions**: list and switch | | `Ctrl+w` | kill pane |
+| `Ctrl+o` | **session switcher** (fuzzy) | | | |
 | `Ctrl+d` | detach | | `q` | kill session |
 | `Enter` | copy mode (`v` select, `y` copy) | | `m` | phone menu |
 | `Ctrl+s` / `Ctrl+r` | save / restore sessions | | `R` | reload config |
@@ -313,8 +314,8 @@ Descriptions live in the configs: a `#: text` line right above an i3 `bindsym`, 
 - **Login opens the picker** (`dev`, the [project picker](#project-picker) in fzf): `Enter` open ·
   `Ctrl+R` resume Claude · `Ctrl+K` kill · `Esc` plain shell. Skip it once with `ssh -t host 'DEV_NO_PICKER=1 bash -l'`.
 - **`Ctrl+a m` menu**: the same tools full screen, same letters as `Ctrl+a`, then a letter:
-  `t` scratch · `g` lazygit · `o` open file · `e` vifm · `r` run script · `s` serial · `w` Pomodoro · `/` keys;
-  then tmux: `z` zoom · `a` sessions · `n` next window · `d` detach.
+  `t` scratch · `g` lazygit · `o` open file · `e` vifm · `r` run script · `S` serial · `w` Pomodoro · `/` keys;
+  then tmux: `z` zoom · `s` sessions · `n` next window · `d` detach.
 - **Auto-zoom**: while an SSH client under 120 columns looks at a window, its Claude pane is zoomed;
   it unzooms when the phone detaches (`Ctrl+a z` on the phone keeps it unzoomed). tmux 3.2 has no
   hook for "the desktop is active again", so with both attached the desktop sees the zoom too.

@@ -24,6 +24,7 @@ prefix + I
 | `prefix + C-n` | New session |
 | `prefix + C-t` | New window |
 | `prefix + q` / `C-q` | Kill session |
+| `prefix + s` | Sessions: list and switch |
 | `prefix + C-o` | Session switcher (tmux-sessionx) |
 | `prefix + C-d` | Detach client |
 | `prefix + R` | Reload config |
@@ -50,7 +51,7 @@ which belongs to the window manager (i3 / GlazeWM / AeroSpace). Full rules: the 
 | `prefix + e` | vifm popup |
 | `prefix + v` | VimCommander in this folder |
 | `prefix + r` | Run a project `run_*.sh` (last-run first: `prefix + r Enter` repeats) |
-| `prefix + s` | Serial monitor |
+| `prefix + S` | Serial monitor |
 | `prefix + w` | Pomodoro timer |
 | `prefix + n` | Dev layout at current path |
 | `prefix + /` | Key cheat sheet |
