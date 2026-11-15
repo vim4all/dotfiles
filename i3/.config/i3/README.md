@@ -1,7 +1,7 @@
 # i3 · Catppuccin Mocha
 
 i3 setup for the ThinkPad: Catppuccin Mocha colors, rofi launchers, tmux dev
-workspaces, Obsidian overlay. Reload after edits with `Super + Shift + C`.
+workspaces, Obsidian overlay. Reload after edits with `Alt + Shift + C`.
 
 ## Files
 
@@ -27,38 +27,42 @@ workspaces, Obsidian overlay. Reload after edits with `Super + Shift + C`.
 
 ## Startup
 
-Keyboard layouts `us,ua` (Alt+Shift toggles), `dex` autostart, monitors/autorandr,
+Keyboard layouts `us,ua` (Super+Space toggles), `dex` autostart, monitors/autorandr,
 `xss-lock` + `i3lock`, `nm-applet`, `dunst`, `picom`, `feh`, rclone mount of
 `gdrive:` at `~/GoogleDrive`.
 
 ## Keybindings
 
-`Super` = `Mod4`.
+`Alt` = `Mod1`, so the same keys work with GlazeWM (Windows) and AeroSpace (macOS).
+`Super + Space` switches keyboard layout us ↔ ua.
 
 ### Apps & workflow
 
 | Binding | Action |
 |---------|--------|
-| `Super + Enter` | terminal: kitty (gnome-terminal on VNC `:1` or if kitty fails) |
-| `Super + D` | rofi app launcher |
-| `Super + Tab` | rofi window switcher |
-| `Super + P` | project picker → **dev-lite** (claude + shell) |
-| `Super + Shift + P` | project picker → dev-claude (full layout: nvim + claude + repl) |
-| `Super + O` | Obsidian overlay (show/hide) |
-| `Super + N` | quick capture → `99_Input/Inbox.md` |
-| `Super + C` | VimCommander (two-pane file manager) |
-| `Super + F8` | Bluetooth menu |
-| `Super + \`` | toggle layout us ↔ ua |
-| `Print` / `Super + Print` | flameshot area / full screen |
-| `Super + Shift + X` | lock screen |
-| `Super + F9` / `F10` | unmount / mount Google Drive |
-| `Super + Shift + Q` | close window |
+| `Alt + Enter` | terminal: kitty (gnome-terminal on VNC `:1` or if kitty fails) |
+| `Alt + D` | rofi app launcher |
+| `Alt + Tab` | rofi window switcher |
+| `Alt + P` | project picker → **dev-lite** (claude + shell) |
+| `Alt + Shift + P` | project picker → dev-claude (full layout: nvim + claude + repl) |
+| `Alt + O` | Obsidian overlay (show/hide) |
+| `Alt + N` | quick capture → `99_Input/Inbox.md` |
+| `Alt + C` | VimCommander (two-pane file manager) |
+| `Alt + F8` | Bluetooth menu |
+| `Alt + \`` | toggle layout us ↔ ua |
+| `Print` / `Alt + Print` | flameshot area / full screen |
+| `Alt + Shift + X` | lock screen |
+| `Alt + F9` / `F10` | unmount / mount Google Drive |
+| `Alt + Shift + Q` | close window |
 
 In the project picker: running tmux sessions are listed first (`● name`, Enter
-attaches); on a folder, `Enter` opens a new workspace and `Alt + C` opens it
-with `claude --continue`; `Alt + V` opens the folder (or the session's folder) in VimCommander.
+attaches); on a folder, `Enter` opens a new workspace and `Ctrl + R` opens it
+with `claude --continue`; `Ctrl + O` opens the folder (or the session's folder) in VimCommander;
+`Ctrl + K` kills the session (asks first).
 
 ### VNC fallbacks (Super is grabbed by the VNC client)
+
+With i3 on `Alt` the VNC client no longer grabs the WM key; these stay as a fallback.
 
 | Binding | Action |
 |---------|--------|
@@ -72,23 +76,23 @@ with `claude --continue`; `Alt + V` opens the folder (or the session's folder) i
 
 | Binding | Action |
 |---------|--------|
-| `Super + H J K L` / arrows | focus |
-| `Super + Shift + H J K L` / arrows | move window |
-| `Super + B` / `V` | split horizontal / vertical |
-| `Super + F` | fullscreen |
-| `Super + S` / `W` / `E` | stacking / tabbed / toggle split |
-| `Super + Shift + Space` | toggle floating |
-| `Super + Space` | focus tiling ↔ floating |
-| `Super + A` | focus parent |
-| `Super + R` | resize mode (`HJKL`/arrows, `Enter`/`Esc` to exit) |
-| `Super + -` / `Super + Shift + -` | scratchpad show / move to scratchpad |
+| `Alt + H J K L` / arrows | focus |
+| `Alt + Shift + H J K L` / arrows | move window |
+| `Alt + B` / `V` | split horizontal / vertical |
+| `Alt + F` | fullscreen |
+| `Alt + S` / `W` / `E` | stacking / tabbed / toggle split |
+| `Alt + Shift + Space` | toggle floating |
+| `Alt + Space` | focus tiling ↔ floating |
+| `Alt + A` | focus parent |
+| `Alt + R` | resize mode (`HJKL`/arrows, `Enter`/`Esc` to exit) |
+| `Alt + -` / `Alt + Shift + -` | scratchpad show / move to scratchpad |
 
 ### Workspaces
 
 | Binding | Action |
 |---------|--------|
-| `Super + 1 – 0` | switch to workspace 1–10 |
-| `Super + Shift + 1 – 0` | move window to workspace 1–10 |
+| `Alt + 1 – 0` | switch to workspace 1–10 |
+| `Alt + Shift + 1 – 0` | move window to workspace 1–10 |
 
 ### Media & i3
 
@@ -96,9 +100,9 @@ with `claude --continue`; `Alt + V` opens the folder (or the session's folder) i
 |---------|--------|
 | Volume / mute / mic-mute keys | `pactl` ±5% / toggle |
 | Brightness keys | `xbacklight` ±5 |
-| `Super + Shift + C` | reload config |
-| `Super + Shift + R` | restart i3 |
-| `Super + Shift + E` | exit i3 |
+| `Alt + Shift + C` | reload config |
+| `Alt + Shift + R` | restart i3 |
+| `Alt + Shift + E` | exit i3 |
 
 ## Dependencies
 

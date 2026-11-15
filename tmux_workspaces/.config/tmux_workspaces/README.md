@@ -36,7 +36,7 @@ dev-lite   [-c] [DIR [SESSION]] [-- AI_ARGS]   # just Claude + a shell
 └──────────────────────────────┘
 ```
 
-No git window — open lazygit as a popup with `Alt+g`.
+No git window — open lazygit as a popup with `prefix + g`.
 
 ## Full layout
 
@@ -59,7 +59,7 @@ nvim restores `Session.vim` if present, otherwise opens the project directory.
 ## Pomodoro (`pom.py`)
 
 One global timer in the tmux session `pom`, shown in the tmux status bar (pom pushes it into the `@pom` tmux option).
-`Alt+w` opens it in a popup; `prefix + C-d` hides the popup and the timer keeps running.
+`prefix + w` opens it in a popup; `prefix + C-d` hides the popup and the timer keeps running.
 
 | Key | Action |
 |-----|--------|

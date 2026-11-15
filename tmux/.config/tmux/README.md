@@ -21,44 +21,46 @@ prefix + I
 
 | Key | Action |
 |-----|--------|
-| `prefix + n` / `C-n` | New session |
-| `prefix + t` / `C-t` | New window |
+| `prefix + C-n` | New session |
+| `prefix + C-t` | New window |
 | `prefix + q` / `C-q` | Kill session |
+| `prefix + C-o` | Session switcher (tmux-sessionx) |
 | `prefix + C-d` | Detach client |
-| `prefix + r` | Reload config |
+| `prefix + R` | Reload config |
 
 ### Panes
 
 | Key | Action |
 |-----|--------|
-| `prefix + g` / `C-g` | Split vertically (side by side) |
+| `prefix + C-g` | Split vertically (side by side) |
 | `prefix + h` / `C-h` | Split horizontally (top/bottom) |
-| `prefix + w` / `C-w` | Kill pane |
+| `prefix + C-w` | Kill pane |
+| `prefix + C-l` | Clear the screen (`C-l` alone moves to the right pane) |
 
-### My tools (Alt, no prefix)
+### My tools (prefix + letter)
 
-Rule: `prefix` = tmux itself (sessions, windows, panes); `Alt` = my own tools.
-Bash's Alt+f/b/d/., fzf's Alt+c and Alt+Shift (layout toggle) are left alone. Full rules: the main README's *Key rules*.
+Rule: `prefix` + letter = my own tools; `prefix` + Ctrl+letter = tmux itself. tmux stays off `Alt`,
+which belongs to the window manager (i3 / GlazeWM / AeroSpace). Full rules: the main README's *Key rules*.
 
 | Key | Action |
 |-----|--------|
-| `Alt+t` | Scratch shell popup |
-| `Alt+g` | lazygit popup |
-| `Alt+o` | Fuzzy-pick a file and edit it |
-| `Alt+e` | vifm popup |
-| `Alt+v` | VimCommander in this folder |
-| `Alt+r` | Run a project `run_*.sh` (last-run first: `Alt+r Enter` repeats) |
-| `Alt+s` | Serial monitor |
-| `Alt+w` | Pomodoro timer |
-| `Alt+n` | Dev layout at current path |
-| `Alt+/` | Key cheat sheet |
-| `prefix + m` | Phone menu (same tools, for a keyboard without Alt) |
+| `prefix + t` | Scratch shell popup |
+| `prefix + g` | lazygit popup |
+| `prefix + o` | Fuzzy-pick a file and edit it |
+| `prefix + e` | vifm popup |
+| `prefix + v` | VimCommander in this folder |
+| `prefix + r` | Run a project `run_*.sh` (last-run first: `prefix + r Enter` repeats) |
+| `prefix + s` | Serial monitor |
+| `prefix + w` | Pomodoro timer |
+| `prefix + n` | Dev layout at current path |
+| `prefix + /` | Key cheat sheet |
+| `prefix + m` | Phone menu (the same tools full screen) |
 
 ### Navigation
 
 | Key | Action |
 |-----|--------|
-| `Alt+Arrow` | Move between panes (no prefix) |
+| `C-h/j/k/l` | Move between panes and nvim splits (no prefix) |
 | `prefix + j/k` | Move pane down/up |
 | `prefix + Left/Right` | Move pane left/right |
 | `PageUp/PageDown` | Previous/next window |

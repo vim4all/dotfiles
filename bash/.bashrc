@@ -40,8 +40,9 @@
 #
 #  TOOLS
 #    zoxide      — smart cd replacement (use 'z' instead of 'cd')
-#    fzf         — Ctrl+R fuzzy history · Ctrl+T insert a file path · Alt+C cd
+#    fzf         — Ctrl+R fuzzy history · Ctrl+T insert a file path · Ctrl+G cd
 #                  into a subfolder · **<Tab> fuzzy completion (vim **, kill **)
+#    keys        — Ctrl+←/→ move by word (Alt is the window manager's)
 #    bat / fd    — Ubuntu's batcat / fdfind under their usual names
 #    lesspipe    — makes 'less' handle binary/compressed files gracefully
 #
@@ -201,7 +202,13 @@ if command -v fzf >/dev/null; then
            /usr/share/bash-completion/completions/fzf; do
     [ -f "$f" ] && . "$f"
   done
+  # fzf's cd is on Alt+C, which the window manager owns (i3 / GlazeWM /
+  # AeroSpace); Ctrl+G replays it
+  bind -m emacs-standard '"\C-g": "\ec"'
 fi
+# Word moves without Alt (Alt+F/B are the window manager's)
+bind '"\e[1;5C": forward-word'
+bind '"\e[1;5D": backward-word'
 # direnv: per-project environments from .envrc (ESP32 projects: `use esp_idf`,
 # see ~/.config/direnv/lib/esp_idf.sh). Messages are dimmed.
 if command -v direnv >/dev/null; then

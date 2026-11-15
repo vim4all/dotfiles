@@ -25,7 +25,7 @@ bash dev_claude.sh [-c] [DIR [SESSION]] [-- AI_ARGS...]   # dir defaults to cwd
 
 ## Lite layout
 
-Window `claude`: AI CLI (~75%) above a shell (~25%). No git window — lazygit is a tmux popup on `Alt+g`. The session sets `detach-on-destroy on` (overriding the global `off`), so killing it returns to the launching shell instead of switching to another session.
+Window `claude`: AI CLI (~75%) above a shell (~25%). No git window — lazygit is a tmux popup on `Ctrl+a g`. The session sets `detach-on-destroy on` (overriding the global `off`), so killing it returns to the launching shell instead of switching to another session.
 
 ## Full layout (Window 1 — `code`)
 
@@ -48,7 +48,7 @@ nvim restores `Session.vim` if present in the project directory, otherwise opens
 
 ## pom.py
 
-Standalone Python 3 Pomodoro timer — no dependencies beyond stdlib. Not part of the dev layouts: `~/.tmux.conf` binds `Alt+w` to a popup attached to a global `pom` session. `countdown()` pushes the phase as a tmux-formatted string into the global tmux user option `@pom` at least once a second (`write_status()` → `tmux set -g @pom`); `status-right` shows `#{@pom}`, so tmux runs no polling script and `status-interval` is 15s (clock only). `main()` unsets `@pom` on exit, including SIGHUP/SIGTERM (e.g. the `pom` session being killed).
+Standalone Python 3 Pomodoro timer — no dependencies beyond stdlib. Not part of the dev layouts: `~/.tmux.conf` binds `Ctrl+a w` to a popup attached to a global `pom` session. `countdown()` pushes the phase as a tmux-formatted string into the global tmux user option `@pom` at least once a second (`write_status()` → `tmux set -g @pom`); `status-right` shows `#{@pom}`, so tmux runs no polling script and `status-interval` is 15s (clock only). `main()` unsets `@pom` on exit, including SIGHUP/SIGTERM (e.g. the `pom` session being killed).
 
 **Start screen** (interactive config before the first session):
 - `↑`/`↓` or `k`/`j` — move between settings

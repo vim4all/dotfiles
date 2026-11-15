@@ -1,6 +1,6 @@
 #!/bin/bash
 # Pick a serial port and open picocom on it in a new tmux window.
-#   serial.sh PANE_PATH      (meant for a display-popup: Alt+s)
+#   serial.sh PANE_PATH      (meant for a display-popup: Ctrl+a s)
 # Enter   → 115200 baud      Ctrl+b → choose another baud rate
 # The window is named after the port; picocom's escape key is Ctrl+b
 # (Ctrl+a is the tmux prefix): Ctrl+b Ctrl+x quits, Ctrl+b Ctrl+h shows help.

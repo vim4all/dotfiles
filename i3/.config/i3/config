@@ -2,7 +2,10 @@
 # ║           i3 config — Catppuccin Mocha                   ║
 # ╚══════════════════════════════════════════════════════════╝
 
-set $mod Mod4
+# Alt, like GlazeWM (Windows) and AeroSpace (macOS), so the same keys work on
+# every machine. tmux keeps off Alt (Ctrl+h/j/k/l, Ctrl+a …); Super is free
+# (Super+Space switches the keyboard layout, as on Windows).
+set $mod Mod1
 
 # ── Catppuccin Mocha Palette ──────────────────────────────────────────────────
 set $rosewater #f5e0dc
@@ -54,7 +57,8 @@ default_floating_border pixel 4
 hide_edge_borders smart
 
 # ── Startup ───────────────────────────────────────────────────────────────────
-exec --no-startup-id setxkbmap us,ua -option grp:alt_shift_toggle
+# Super+Space, not Alt+Shift: XKB would flip the layout on every $mod+Shift key
+exec --no-startup-id setxkbmap us,ua -option -option grp:win_space_toggle
 exec --no-startup-id dex --autostart --environment i3
 exec --no-startup-id ~/.config/i3/scripts/monitors.sh
 # Lock after 10 min idle (X screensaver → xss-lock → i3lock) and on suspend
@@ -169,7 +173,7 @@ bindsym $mod+Print       exec --no-startup-id flameshot screen
 #: Re-apply monitor layout
 bindsym $mod+F7 exec --no-startup-id ~/.config/i3/scripts/monitors.sh
 
-# Notifications (dunst): on Super like every other desktop key, so Ctrl+Space
+# Notifications (dunst): on $mod like every other desktop key, so Ctrl+Space
 # reaches the terminal / nvim again
 #: Notification: close
 bindsym $mod+BackSpace       exec --no-startup-id dunstctl close

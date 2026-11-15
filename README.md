@@ -12,7 +12,7 @@ Managed with [GNU Stow](https://www.gnu.org/software/stow/). nvim is a git submo
 - [Quick start](#quick-start)
 - [Screenshots](#screenshots)
 - [How it fits together](#how-it-fits-together)
-- [Cheat sheet](#cheat-sheet): [key rules](#key-rules) · [i3](#i3--super) · [project picker](#project-picker) · [tmux](#tmux--alt-and-prefix-ctrla) · [dev workspaces](#dev-workspaces) · [key cheat sheet](#key-cheat-sheet) · [Claude](#claude-code) · [kitty](#kitty) · [VimCommander](#vimcommander) · [Obsidian](#obsidian) · [bash](#bash) · [git](#git) · [ssh](#ssh) · [nvim](#nvim--leader-space)
+- [Cheat sheet](#cheat-sheet): [key rules](#key-rules) · [i3](#i3--alt) · [project picker](#project-picker) · [tmux](#tmux--ctrl-and-prefix-ctrla) · [dev workspaces](#dev-workspaces) · [key cheat sheet](#key-cheat-sheet) · [Claude](#claude-code) · [kitty](#kitty) · [VimCommander](#vimcommander) · [Obsidian](#obsidian) · [bash](#bash) · [git](#git) · [ssh](#ssh) · [nvim](#nvim--leader-space)
 - [Managing the dotfiles](#managing-the-dotfiles)
 - [Packages](#packages)
 
@@ -53,7 +53,7 @@ STL and STEP models in 3D, firmware memory maps from a linker `.map` or ELF.
 
 ![VimCommander previews: sunburst, telemetry plot, 3D motor model, memory map](docs/screenshots/vimcommander-previews.png)
 
-**The full layout** (`Super+Shift+P`): nvim, a shell and Claude in one window, plus repl and git windows.
+**The full layout** (`Alt+Shift+P`): nvim, a shell and Claude in one window, plus repl and git windows.
 
 ![dev-claude layout: nvim, shell and Claude](docs/screenshots/full-layout.png)
 
@@ -65,12 +65,12 @@ STL and STEP models in 3D, firmware memory maps from a linker `.map` or ELF.
 
 ```mermaid
 flowchart LR
-    subgraph i3["🪟 i3 (Super)"]
-        P["Super+P<br/>project picker"]
-        O["Super+O<br/>Obsidian overlay"]
-        N["Super+N<br/>quick capture"]
-        C["Super+C<br/>VimCommander"]
-        T["Super+Enter<br/>kitty"]
+    subgraph i3["🪟 i3 (Alt)"]
+        P["Alt+P<br/>project picker"]
+        O["Alt+O<br/>Obsidian overlay"]
+        N["Alt+N<br/>quick capture"]
+        C["Alt+C<br/>VimCommander"]
+        T["Alt+Enter<br/>kitty"]
     end
 
     P -->|Enter| LITE
@@ -80,13 +80,13 @@ flowchart LR
 
     subgraph tmux["🖥 tmux session (in kitty)"]
         LITE["dev-lite<br/>Claude ▸ shell"]
-        POP["popups<br/>Alt+G lazygit · Alt+O files · Alt+E vifm"]
+        POP["popups<br/>Ctrl+a g lazygit · o files · e vifm"]
         LITE -.-> POP
     end
 
     VC["📁 VimCommander"] -->|":dev / F9"| LITE
     VC -->|":obs"| OBS
-    LITE -->|"Alt+V"| VC
+    LITE -->|"Ctrl+a v"| VC
     O --> OBS["📓 Obsidian vault"]
     N -->|"99_Input/Inbox.md"| OBS
     LITE -->|"claude-notes"| OBS
@@ -95,9 +95,9 @@ flowchart LR
     PHONE -.->|":share via Tailscale"| VC
 ```
 
-**A typical day:** `Super+P` → pick a project → a tmux session opens with Claude on top
-and a shell below. Git in a popup (`Alt+G`), files in a popup (`Alt+O`, `Alt+E`) or in
-VimCommander (`Alt+V`). Ideas go to Obsidian with `Super+N`. After a reboot,
+**A typical day:** `Alt+P` → pick a project → a tmux session opens with Claude on top
+and a shell below. Git in a popup (`Ctrl+a g`), files in a popup (`Ctrl+a o`, `Ctrl+a e`) or in
+VimCommander (`Ctrl+a v`). Ideas go to Obsidian with `Alt+N`. After a reboot,
 tmux restores every session and Claude continues its last conversation.
 
 ---
@@ -110,59 +110,64 @@ Each modifier belongs to one layer, so the modifier tells you who handles the ke
 
 | Modifier | Layer | For |
 |---|---|---|
-| `Super` | desktop (i3) | windows, workspaces, apps, system |
-| `Alt` | terminal (tmux, no prefix) | moving between panes, and all my tools |
-| `Ctrl+a`, then a key | tmux itself | sessions, windows, splits, copy mode |
+| `Alt` (Option on macOS) | desktop (i3 / GlazeWM / AeroSpace) | windows, workspaces, apps, system |
+| `Ctrl+H J K L` | tmux + nvim | moving between panes and nvim splits |
+| `Ctrl+a`, then a letter | my tools | lazygit, files, scripts … |
+| `Ctrl+a`, then `Ctrl`+letter | tmux itself | windows, splits, sessions, kill |
 | `Ctrl` | the app or picker in front | its own keys; picker actions (they work on the phone too) |
+| `Super` / `Win` / `Cmd` | the OS | `Super+Space` switches keyboard layout us ↔ ua (as on Windows) |
 
-- `Shift` means *move*, *the other variant* or *careful*: `Super+Shift+H` moves a window, `Super+Shift+P` opens the full layout, `Super+Shift+Q` closes.
-- The layers mirror each other: `Super+H J K L` / `Alt+H J K L` move between windows / panes; `Super+/` / `Alt+/` show this cheat sheet.
-- The phone menu (`Ctrl+a m`) uses the same letters as the `Alt` keys.
-- Left free on purpose: `Alt+F B D .` (bash word moves), `Alt+C` (fzf cd), `Alt+Shift` (keyboard layout).
+`Alt` is the only window-manager modifier that works on Linux, Windows and macOS, so the desktop owns it
+and tmux stays off it. The same rules apply on Windows (GlazeWM) and macOS (AeroSpace); see the windows and macos dotfiles repos.
 
-### i3 · `Super`
+- `Shift` means *move*, *the other variant* or *careful*: `Alt+Shift+H` moves a window, `Alt+Shift+P` opens the full layout, `Alt+Shift+Q` closes.
+- The layers mirror each other: `Alt+H J K L` / `Ctrl+H J K L` move between windows / panes; `Alt+/` / `Ctrl+a /` show this cheat sheet.
+- The phone menu (`Ctrl+a m`) uses the same letters as `Ctrl+a`, then a letter.
+- In bash, word moves are `Ctrl+←/→` and fzf cd is `Ctrl+G` (`Alt+F B D` belong to the window manager).
+
+### i3 · `Alt`
 
 **Apps**
 
 | Key | Action |
 |---|---|
-| `Super+Enter` | terminal (kitty; gnome-terminal on VNC `:1` or if kitty fails) |
-| `Super+D` / `Super+Tab` | app launcher / window switcher (rofi) |
-| `Super+P` / `Super+Shift+P` | [project picker](#project-picker) → **dev-lite** / full layout |
-| `Super+O` | Obsidian overlay, show / hide |
-| `Super+N` | quick capture → `99_Input/Inbox.md` |
-| `Super+C` | VimCommander |
-| `Super+/` | key cheat sheet |
+| `Alt+Enter` | terminal (kitty; gnome-terminal on VNC `:1` or if kitty fails) |
+| `Alt+D` / `Alt+Tab` | app launcher / window switcher (rofi) |
+| `Alt+P` / `Alt+Shift+P` | [project picker](#project-picker) → **dev-lite** / full layout |
+| `Alt+O` | Obsidian overlay, show / hide |
+| `Alt+N` | quick capture → `99_Input/Inbox.md` |
+| `Alt+C` | VimCommander |
+| `Alt+/` | key cheat sheet |
 
 **Windows and workspaces**
 
 | Key | Action |
 |---|---|
-| `Super+H J K L` / `+Shift` | focus / move (arrows work too) |
-| `Super+1…0` / `+Shift` | go to / move window to workspace |
-| `Super+Esc` | previous workspace (so does pressing the current workspace's number) |
-| `Super+Shift+Q` | close window |
-| `Super+F` | fullscreen |
-| `Super+B` / `Super+V` | next window opens to the right / below |
-| `Super+S` · `W` · `E` | stacking · tabbed · toggle split |
-| `Super+Shift+Space` / `Super+Space` | float / unfloat · focus tiling ↔ floating |
-| `Super+-` / `+Shift` | scratchpad: show / move window there |
-| `Super+R` | resize mode (`H J K L`, `Esc` to leave) |
+| `Alt+H J K L` / `+Shift` | focus / move (arrows work too) |
+| `Alt+1…0` / `+Shift` | go to / move window to workspace |
+| `Alt+Esc` | previous workspace (so does pressing the current workspace's number) |
+| `Alt+Shift+Q` | close window |
+| `Alt+F` | fullscreen |
+| `Alt+B` / `Alt+V` | next window opens to the right / below |
+| `Alt+S` · `W` · `E` | stacking · tabbed · toggle split |
+| `Alt+Shift+Space` / `Alt+Space` | float / unfloat · focus tiling ↔ floating |
+| `Alt+-` / `+Shift` | scratchpad: show / move window there |
+| `Alt+R` | resize mode (`H J K L`, `Esc` to leave) |
 
 **System**
 
 | Key | Action |
 |---|---|
-| `Super+Backspace` / `+Shift` / `+Ctrl` | notification: close / bring the last one back / close all |
-| `Super+Shift+X` | lock (also after 10 min idle and on suspend) |
-| `Super+F7` | re-apply monitor layout (after plugging monitors in or out) |
-| `Super+F8` | Bluetooth menu |
-| `Super+F9` / `Super+F10` | unmount / mount Google Drive |
-| `Alt+Shift` or ``Super+` `` | keyboard layout us ↔ ua |
-| `Print` / `Super+Print` | screenshot area / screen (flameshot) |
-| `Super+Shift+C` · `R` · `E` | reload · restart · exit i3 |
+| `Alt+Backspace` / `+Shift` / `+Ctrl` | notification: close / bring the last one back / close all |
+| `Alt+Shift+X` | lock (also after 10 min idle and on suspend) |
+| `Alt+F7` | re-apply monitor layout (after plugging monitors in or out) |
+| `Alt+F8` | Bluetooth menu |
+| `Alt+F9` / `Alt+F10` | unmount / mount Google Drive |
+| `Super+Space` or ``Alt+` `` | keyboard layout us ↔ ua |
+| `Print` / `Alt+Print` | screenshot area / screen (flameshot) |
+| `Alt+Shift+C` · `R` · `E` | reload · restart · exit i3 |
 
-Over VNC, put TigerVNC in fullscreen (`Ctrl+Alt+Enter`) so it passes every `Super` key through.
+Over VNC, the `Alt` keys reach i3 without fullscreen; TigerVNC fullscreen (`Ctrl+Alt+Enter`) also passes `Super` keys through.
 
 ### Workspaces
 
@@ -171,21 +176,21 @@ with fewer screens (undocked, VNC) everything falls back to the one available.
 
 | Key | Workspace | Monitor | Auto-assigned |
 |---|---|---|---|
-| `Super+1` | `1: dev` | VGA (left) | |
-| `Super+2` | `2: dev` | DP (main) | |
-| `Super+3` | `3: ref` | laptop | |
-| `Super+4` | `4: web` | DP | |
-| `Super+5` | `5: chat` | laptop | Telegram, Discord, Thunderbird (tabbed; Telegram + Discord start at login) |
-| `Super+6` | `6: media` | VGA | mpv, VLC, Spotify |
-| `Super+7` | `7: eda` | DP | KiCad, STM32CubeMX |
-| `Super+8` `9` | spare | any | |
-| `Super+0` | `10: sys` | laptop | monitoring: btop, lazydocker |
+| `Alt+1` | `1: dev` | VGA (left) | |
+| `Alt+2` | `2: dev` | DP (main) | |
+| `Alt+3` | `3: ref` | laptop | |
+| `Alt+4` | `4: web` | DP | |
+| `Alt+5` | `5: chat` | laptop | Telegram, Discord, Thunderbird (tabbed; Telegram + Discord start at login) |
+| `Alt+6` | `6: media` | VGA | mpv, VLC, Spotify |
+| `Alt+7` | `7: eda` | DP | KiCad, STM32CubeMX |
+| `Alt+8` `9` | spare | any | |
+| `Alt+0` | `10: sys` | laptop | monitoring: btop, lazydocker |
 
 Change the map in `i3/.config/i3/config` (`App → workspace` section); `xprop WM_CLASS` shows a window's class.
 
 ### Project picker
 
-`Super+P` lists, top to bottom: running tmux sessions (`● name  ·  folder`), projects in `~/wrk_dir/<group>/`
+`Alt+P` lists, top to bottom: running tmux sessions (`● name  ·  folder`), projects in `~/wrk_dir/<group>/`
 (as `DCR/DCR_ESP32_Telemetry`), then up to 15 of zoxide's frecent folders.
 
 | Key | Action |
@@ -199,42 +204,44 @@ The terminal version, `dev` (opens by itself on an SSH login), has the same keys
 A session already on screen is focused, not opened twice. New terminals go to `2: dev` (main screen), then `1: dev`,
 then `3: ref`, two per workspace.
 
-### tmux · `Alt` and prefix `Ctrl+a`
+### tmux · `Ctrl` and prefix `Ctrl+a`
 
-**`Alt`: panes and my tools**
+**`Ctrl+H J K L`** moves between panes, into nvim splits too (no prefix). `Ctrl+←/→` stay free for the shell.
+
+**`Ctrl+a`, then a letter: my tools**
 
 | Key | Action |
 |---|---|
-| `Alt+H J K L` / arrows | move between panes (into nvim splits too) |
-| `Alt+T` | scratch shell popup |
-| `Alt+G` | **lazygit** popup |
-| `Alt+O` | **open a file**: fuzzy-pick it, edit it |
-| `Alt+E` | **vifm** popup |
-| `Alt+V` | **VimCommander** in this folder |
-| `Alt+R` | **run a project script** (`run_*.sh`); `Alt+R` `Enter` repeats the last one |
-| `Alt+S` | **serial monitor**: pick a port → picocom (`Ctrl+B Ctrl+X` quits) |
-| `Alt+W` | Pomodoro timer |
-| `Alt+N` | full dev layout in this folder |
-| `Alt+/` | key cheat sheet |
+| `t` | scratch shell popup |
+| `g` | **lazygit** popup |
+| `o` | **open a file**: fuzzy-pick it, edit it |
+| `e` | **vifm** popup |
+| `v` | **VimCommander** in this folder |
+| `r` | **run a project script** (`run_*.sh`); `Ctrl+a r` `Enter` repeats the last one |
+| `s` | **serial monitor**: pick a port → picocom (`Ctrl+B Ctrl+X` quits) |
+| `w` | Pomodoro timer |
+| `n` | full dev layout in this folder |
+| `/` | key cheat sheet |
 
 Tools open in the pane's folder. Close a popup with `exit` / `q`, or hide it with `Ctrl+a Ctrl+d`
 (scratch and Pomodoro keep running).
 
-`Alt+R` finds `run_*.sh` in the pane's folder or a parent (else the session folder) and types it into the
+`Ctrl+a r` finds `run_*.sh` in the pane's folder or a parent (else the session folder) and types it into the
 window's idle shell pane (or a new one), so the output stays in view and Claude can read it.
 
-**`Ctrl+a`, then:**
+**`Ctrl+a`, then (tmux itself, mostly `Ctrl`+letter):**
 
 | Key | Action | | Key | Action |
 |---|---|---|---|---|
-| `t` | new window | | `g` / `h` | split side by side / top-bottom |
-| `PgUp` / `PgDn` | previous / next window | | `j` `k` `←` `→` | select pane (no Alt needed) |
-| `n` | new session | | `H J K L` | resize pane (repeatable) |
-| `o` | **session switcher** (fuzzy) | | `w` | kill pane |
+| `Ctrl+t` | new window | | `Ctrl+g` / `h` or `Ctrl+h` | split side by side / top-bottom |
+| `PgUp` / `PgDn` | previous / next window | | `j` `k` `←` `→` | select pane |
+| `Ctrl+n` | new session | | `H J K L` | resize pane (repeatable) |
+| `Ctrl+o` | **session switcher** (fuzzy) | | `Ctrl+w` | kill pane |
 | `Ctrl+d` | detach | | `q` | kill session |
 | `Enter` | copy mode (`v` select, `y` copy) | | `m` | phone menu |
-| `Ctrl+s` / `Ctrl+r` | save / restore sessions | | `r` | reload config |
-| `I` | install plugins (TPM) | | `?` | tmux's own key list |
+| `Ctrl+s` / `Ctrl+r` | save / restore sessions | | `R` | reload config |
+| `Ctrl+l` | clear the screen (`Ctrl+L` alone moves right) | | `I` | install plugins (TPM) |
+| `?` | tmux's own key list | | | |
 
 Mouse works everywhere; selecting text copies it. Sessions are saved every 5 minutes and **restored after a
 reboot**: Claude panes come back as `claude --continue`, and i3 reopens a terminal for every session that was
@@ -244,11 +251,11 @@ on screen, on the same workspace (`i3/.config/i3/scripts/sessions.py`). No need 
 
 ```mermaid
 flowchart TB
-    subgraph lite["dev-lite (default · Super+P)"]
+    subgraph lite["dev-lite (default · Alt+P)"]
         direction TB
         L1["claude ~75%"] --- L2["shell ~25%"]
     end
-    subgraph full["dev-claude (Super+Shift+P)"]
+    subgraph full["dev-claude (Alt+Shift+P)"]
         direction TB
         subgraph w1["window 1: code"]
             direction LR
@@ -262,7 +269,7 @@ flowchart TB
 
 | Command | Layout |
 |---|---|
-| `dev-lite [DIR]` | Claude + shell (lazygit via `Alt+G`) |
+| `dev-lite [DIR]` | Claude + shell (lazygit via `Ctrl+a g`) |
 | `dev-claude [DIR]` | nvim + terminal + Claude, repl, git, openocd windows |
 | `dev-plain [DIR]` | same without an AI pane |
 | `dev-gemini [DIR]` | same with the Antigravity CLI |
@@ -272,7 +279,7 @@ Options: `-c` continue the last AI conversation · `DIR SESSION` custom session 
 
 ### Key cheat sheet
 
-Forgot a key? **`Super+/`** (rofi) or **`Alt+/`** (tmux popup)
+Forgot a key? **`Alt+/`** (rofi) or **`Ctrl+a /`** (tmux popup)
 lists every i3 and tmux binding with a description and how often you've used it.
 Type to search; in rofi, `Enter` runs an i3 binding.
 
@@ -296,7 +303,7 @@ Descriptions live in the configs: a `#: text` line right above an i3 `bindsym`, 
 | Claude with the Obsidian vault | `claude-notes` (vault rules in its `CLAUDE.md`) |
 | Needs you / finished | desktop notification + bell → tmux window and i3 workspace get flagged |
 | Which sessions wait | i3 bar, left: `⚠ name` needs a permission answer (red), `✓ name` finished (goes away once you focus it); click → jump to it |
-| Full layout for this project | `Alt+N` in tmux (nvim + shell + Claude) |
+| Full layout for this project | `Ctrl+a n` in tmux (nvim + shell + Claude) |
 | Status line | model · context % · project/branch · 5 h and weekly limits |
 | Resume after reboot | automatic (tmux-resurrect → `claude --continue`) |
 | From the phone | iSH → `ssh` over Tailscale → the picker opens by itself (see *Phone* below) |
@@ -305,7 +312,7 @@ Descriptions live in the configs: a `#: text` line right above an i3 `bindsym`, 
 
 - **Login opens the picker** (`dev`, the [project picker](#project-picker) in fzf): `Enter` open ·
   `Ctrl+R` resume Claude · `Ctrl+K` kill · `Esc` plain shell. Skip it once with `ssh -t host 'DEV_NO_PICKER=1 bash -l'`.
-- **`Ctrl+a m` menu** for everything the `Alt` keys do (iOS has no Alt), same letters:
+- **`Ctrl+a m` menu**: the same tools full screen, same letters as `Ctrl+a`, then a letter:
   `t` scratch · `g` lazygit · `o` open file · `e` vifm · `r` run script · `s` serial · `w` Pomodoro · `/` keys;
   then tmux: `z` zoom · `a` sessions · `n` next window · `d` detach.
 - **Auto-zoom**: while an SSH client under 120 columns looks at a window, its Claude pane is zoomed;
@@ -348,8 +355,8 @@ My additions on top of its [own keys](https://github.com/vim4all/VimCommander#ke
 
 | What | How |
 |---|---|
-| show / hide | `Super+O` (centered overlay on any workspace) |
-| capture a thought | `Super+N`, type, `Enter` → `99_Input/Inbox.md` with a timestamp |
+| show / hide | `Alt+O` (centered overlay on any workspace) |
+| capture a thought | `Alt+N`, type, `Enter` → `99_Input/Inbox.md` with a timestamp |
 | triage the inbox | `claude-notes`, then "sort my Inbox" |
 
 ### bash
@@ -364,7 +371,7 @@ My additions on top of its [own keys](https://github.com/vim4all/VimCommander#ke
 | `duh` · `path` · `week` | disk usage · PATH · ISO week |
 
 Prompt: `path [branch ●] [venv] ❯`, history shared live between terminals,
-`↑` / `↓` search history by the typed prefix. Start a command with a space to keep it
+`↑` / `↓` search history by the typed prefix, `Ctrl+←/→` jump by word. Start a command with a space to keep it
 out of history.
 
 **fzf**, anywhere at the prompt:
@@ -373,7 +380,7 @@ out of history.
 |---|---|
 | `Ctrl+R` | fuzzy-search history, `Enter` puts the command on the prompt |
 | `Ctrl+T` | insert a file path mid-command (`scp ` `Ctrl+T`), with a preview |
-| `Alt+C` | cd into a subfolder |
+| `Ctrl+G` | cd into a subfolder |
 | `**` `Tab` | fuzzy completion: `vim src/**`, `kill **`, `ssh **` |
 
 `bat` and `fd` are Ubuntu's `batcat` and `fdfind`.
@@ -408,6 +415,7 @@ host starts instantly) and kept alive through Wi-Fi/Tailscale drops. Hosts go in
 | `Space gg` | Neogit |
 | `Space rn` / `Space ca` / `Space cf` | rename / code action / format |
 | `Space db` / `Space dc` | breakpoint / start debugging |
+| `Ctrl+H J K L` | move between splits and tmux panes (vim-tmux-navigator) |
 
 Full list in [nvim's README](nvim/.config/nvim/README.md#keymaps).
 
@@ -477,7 +485,7 @@ git submodule update --remote nvim/.config/nvim     # pull the newest nvim confi
 | `vnc` | `.vnc/xstartup`, `.config/systemd/user/vncserver@.service` | TigerVNC session (i3) and a user unit to start it at boot: `systemctl --user enable --now vncserver@:1` + `loginctl enable-linger` |
 | `ssh` | `.ssh/config` | generic defaults (connection reuse, keepalive); includes `~/.ssh/config.local` |
 | `maint` | `.local/bin/pc-cleanup`, `pc-cleanup.timer` | monthly cleanup of unused Docker data, with a notification; `systemctl --user enable --now pc-cleanup.timer` |
-| `keys` | `.local/bin/keys`, `keys-log` | key cheat sheet (`Super+/`, `Alt+/`) and usage counting (`keys stats`) |
+| `keys` | `.local/bin/keys`, `keys-log` | key cheat sheet (`Alt+/`, `Ctrl+a /`) and usage counting (`keys stats`) |
 | `nvim` | `.config/nvim/` | submodule → Neovim_lua_config |
 
 ### System settings (`system/`, not stowed)
@@ -492,7 +500,7 @@ Files under `/etc` belong to root, so `system/setup.sh` copies them in (with `su
 | `etc/systemd/journald.conf.d/size.conf` | system journal max 500 MB |
 
 It also installs `ncdu` and [delta](https://github.com/dandavison/delta) (not packaged for Ubuntu 22.04),
-sets the keyboard default to `us,ua` + `Alt+Shift` (a Bluetooth keyboard that reconnects would otherwise
+sets the keyboard default to `us,ua` + `Super+Space` (a Bluetooth keyboard that reconnects would otherwise
 come back as plain `us`) and keeps 2 snap revisions instead of 3.
 
 ### Local, never committed

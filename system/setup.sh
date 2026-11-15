@@ -43,8 +43,9 @@ fi
 step "Journal: max 500 MB"
 systemctl restart systemd-journald
 
-step "Keyboard: us,ua + Alt+Shift also for keyboards plugged in later (Bluetooth)"
-sed -i 's/^XKBLAYOUT=.*/XKBLAYOUT="us,ua"/; s/^XKBOPTIONS=.*/XKBOPTIONS="grp:alt_shift_toggle"/' /etc/default/keyboard
+step "Keyboard: us,ua + Super+Space also for keyboards plugged in later (Bluetooth)"
+# Super+Space (as on Windows), not Alt+Shift: Alt is the window manager's key
+sed -i 's/^XKBLAYOUT=.*/XKBLAYOUT="us,ua"/; s/^XKBOPTIONS=.*/XKBOPTIONS="grp:win_space_toggle"/' /etc/default/keyboard
 
 step "Snap: keep 2 revisions"
 snap set system refresh.retain=2

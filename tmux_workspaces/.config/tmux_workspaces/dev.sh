@@ -3,7 +3,7 @@
 #   dev_claude.sh  → full layout, claude
 #   dev_gemini.sh  → full layout, agy (Antigravity CLI — replaced the Gemini CLI)
 #   dev_plain.sh   → full layout, no AI pane
-#   dev_lite.sh    → lite layout: claude + shell (lazygit: Alt+g popup)
+#   dev_lite.sh    → lite layout: claude + shell (lazygit: Ctrl+a g popup)
 #   dev.sh         → full layout, claude (default)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NAME=$(basename "$0" .sh)   # dev_claude / dev_gemini / dev_plain / dev_lite / dev
@@ -120,7 +120,7 @@ if [ "$LAYOUT" = "lite" ]; then
   tmux split-window -v -t "$PANE_AI" -l $(( ROWS * 25 / 100 )) -c "$DIR"
   tmux send-keys -t "$PANE_AI" "$AI_LINE" C-m
   tmux select-pane -t "$PANE_AI"
-  # No git window: lazygit is a popup on Alt+g (see ~/.tmux.conf)
+  # No git window: lazygit is a popup on Ctrl+a g (see ~/.tmux.conf)
   attach
   exit 0
 fi
@@ -151,7 +151,7 @@ else
   tmux split-window -v -t "$PANE_NVIM" -l $(( ROWS * 30 / 100 )) -c "$DIR"
   tmux send-keys -t "$PANE_AI"  "$AI_LINE" C-m
 fi
-# Pomodoro lives in the tmux status bar: Alt+w opens it (see ~/.tmux.conf)
+# Pomodoro lives in the tmux status bar: Ctrl+a w opens it (see ~/.tmux.conf)
 tmux send-keys -t "$PANE_NVIM" '[ -f Session.vim ] && nvim -S || nvim .' C-m
 tmux select-pane -t "$PANE_NVIM"
 
