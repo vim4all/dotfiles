@@ -17,11 +17,12 @@ source ~/.bashrc
 dev-claude [-c] [DIR [SESSION]] [-- AI_ARGS]   # full layout, Claude as AI assistant
 dev-gemini [-c] [DIR [SESSION]] [-- AI_ARGS]   # full layout, Antigravity CLI (agy) as AI assistant
 dev-plain  [DIR [SESSION]]                     # full layout, no AI pane
-dev-lite   [-c] [DIR [SESSION]] [-- AI_ARGS]   # just Claude + a shell
+dev-lite   [-c] [N] [DIR [SESSION]] [-- AI_ARGS]   # just Claude + a shell (N = account)
 ```
 
 `DIR` defaults to the current directory. `SESSION` defaults to the folder name (`dev-gemini` appends `_gemini`, `dev-lite` appends `_lite`). If the session already exists, the script attaches to it instead of creating a new one.
 
+- `N` / `-a N` — Claude account: `dev-lite 2`, `dev-lite 2 ~/proj`, `dev-claude -a 3`. Account 1 (default) is `~/.claude`; N>1 uses `~/.claude-N` (created on first use — run `/login` there once). Session gets `_aN` suffix, so one project can run under several accounts. Settings, hooks, statusline and `projects/` (memory, transcripts → `-c` works across accounts) are symlinked to `~/.claude`.
 - `-c` — continue the most recent conversation (`claude --continue` / `agy --continue`)
 - `-- ARGS` — extra arguments passed to the AI CLI, e.g. `dev-lite -- --model opus`
 - `-h` — help

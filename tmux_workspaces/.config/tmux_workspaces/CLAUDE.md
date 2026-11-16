@@ -18,8 +18,10 @@ All scripts are symlinks to `dev.sh`; behaviour is inferred from the invoked fil
 | `dev_lite.sh` | lite | `claude` | `<folder-name>_lite` |
 
 ```bash
-bash dev_claude.sh [-c] [DIR [SESSION]] [-- AI_ARGS...]   # dir defaults to cwd
+bash dev_claude.sh [-c] [-a N | N] [DIR [SESSION]] [-- AI_ARGS...]   # dir defaults to cwd
 ```
+
+**Accounts**: `-a N`, or a leading bare number that isn't an existing dir, selects Claude account N. N>1 → `CLAUDE_CONFIG_DIR=~/.claude-N` set as tmux *session* env (`new-session -e`, so all panes inherit it) and `_aN` appended to the default session name. `~/.claude-N` is created on first use with symlinks to `~/.claude/{settings.json,settings.local.json,statusline.py,hooks,projects}`; credentials and `.claude.json` stay per account.
 
 `-c` appends `--continue` to the claude/agy command; args after `--` are shell-quoted and appended to the AI command. If the named session already exists (exact match) the script attaches (or `switch-client` when inside tmux) and exits, ignoring other options. All windows open in the resolved absolute path of `DIR`. Panes are targeted by pane ID, not index.
 

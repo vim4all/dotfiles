@@ -21,10 +21,13 @@ TAG="$AI_CMD"; [ "$AI_CMD" = "agy" ] && TAG="gemini"
 
 usage() {
   cat <<EOF
-usage: ${NAME//_/-} [-c] [DIR [SESSION]] [-- AI_ARGS...]
+usage: ${NAME//_/-} [-c] [-a N | N] [DIR [SESSION]] [-- AI_ARGS...]
 
   DIR        project directory (default: .)
-  SESSION    tmux session name (default: folder name)
+  SESSION    tmux session name (default: folder name, + _aN for account N>1)
+  N, -a N    Claude account number (default 1 = ~/.claude; N>1 = ~/.claude-N,
+             created on first use — log in there once with /login).
+             A bare number is the account unless a directory of that name exists.
   -c         continue the most recent AI conversation (claude/agy --continue)
   -- ARGS    extra arguments passed to the AI CLI, e.g. -- --model opus
   -h         show this help
@@ -34,11 +37,13 @@ EOF
 }
 
 CONTINUE=0
+ACCOUNT=""
 POS=()
 AI_ARGS=()
 while [ $# -gt 0 ]; do
   case "$1" in
     -c|--continue) CONTINUE=1 ;;
+    -a|--account) shift; ACCOUNT="${1:-}" ;;
     -h|--help) usage; exit 0 ;;
     --) shift; AI_ARGS=("$@"); break ;;
     -*) echo "error: unknown option '$1'" >&2; usage >&2; exit 1 ;;
@@ -46,6 +51,32 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
+
+# `dev-lite 2 [DIR]`: a leading bare number selects the account (unless it's a dir)
+if [ -z "$ACCOUNT" ] && [[ "${POS[0]:-}" =~ ^[0-9]+$ ]] && [ ! -d "${POS[0]}" ]; then
+  ACCOUNT="${POS[0]}"; POS=("${POS[@]:1}")
+fi
+ACCOUNT="${ACCOUNT:-1}"
+if ! [[ "$ACCOUNT" =~ ^[1-9][0-9]*$ ]]; then
+  echo "error: account must be a number >= 1, got '$ACCOUNT'" >&2
+  exit 1
+fi
+
+# ── Claude account: separate config dir per account (own login, own ~/.claude.json).
+# Settings, statusline, hooks and projects/ (memory + transcripts, so `-c` can pick
+# up a conversation started on another account) are symlinked to ~/.claude.
+TMUX_ENV=()   # session environment → every pane (claude + shell) uses the account
+if [ "$ACCOUNT" != 1 ]; then
+  CLAUDE_DIR="$HOME/.claude-$ACCOUNT"
+  TMUX_ENV=(-e "CLAUDE_CONFIG_DIR=$CLAUDE_DIR")
+  if [ ! -d "$CLAUDE_DIR" ]; then
+    mkdir -p "$CLAUDE_DIR"
+    for f in settings.json settings.local.json statusline.py hooks projects; do
+      [ -e "$HOME/.claude/$f" ] && ln -s "$HOME/.claude/$f" "$CLAUDE_DIR/$f"
+    done
+    echo "created $CLAUDE_DIR — run /login in the claude pane once for account $ACCOUNT"
+  fi
+fi
 
 DIR="${POS[0]:-.}"
 
@@ -61,6 +92,7 @@ if [ -z "${POS[1]:-}" ]; then
   elif [ "$AI_CMD" = "claude" ]; then SESSION="$base"
   else SESSION="${base}_${TAG}"
   fi
+  [ "$ACCOUNT" != 1 ] && SESSION+="_a$ACCOUNT"
 else
   SESSION="${POS[1]}"
 fi
@@ -113,7 +145,7 @@ if [ "$LAYOUT" = "lite" ]; then
   # ├──────────────────────────────┤
   # │  shell              (~25%)   │
   # └──────────────────────────────┘
-  tmux new-session -d -s "$SESSION" -n claude -x $COLS -y $ROWS -c "$DIR"
+  tmux new-session -d "${TMUX_ENV[@]}" -s "$SESSION" -n claude -x $COLS -y $ROWS -c "$DIR"
   # Killing this session drops back to the launching shell, not another session
   tmux set -t "$SESSION" detach-on-destroy on
   PANE_AI=$(tmux display-message -p -t "$SESSION:claude" '#{pane_id}')
@@ -134,7 +166,7 @@ if [ "$AI_CMD" = "none" ]; then
   # ├──────────────────────────────┤
   # │  terminal (~30%)             │
   # └──────────────────────────────┘
-  tmux new-session -d -s "$SESSION" -n code -x $COLS -y $ROWS -c "$DIR"
+  tmux new-session -d "${TMUX_ENV[@]}" -s "$SESSION" -n code -x $COLS -y $ROWS -c "$DIR"
   PANE_NVIM=$(tmux display-message -p -t "$SESSION:code" '#{pane_id}')
   tmux split-window -v -t "$PANE_NVIM" -l $(( ROWS * 30 / 100 )) -c "$DIR"
 else
@@ -145,7 +177,7 @@ else
   # ├──────────────────┤           │
   # │  terminal (~30%) │           │
   # └──────────────────┴───────────┘
-  tmux new-session -d -s "$SESSION" -n code -x $COLS -y $ROWS -c "$DIR"
+  tmux new-session -d "${TMUX_ENV[@]}" -s "$SESSION" -n code -x $COLS -y $ROWS -c "$DIR"
   PANE_NVIM=$(tmux display-message -p -t "$SESSION:code" '#{pane_id}')
   PANE_AI=$(tmux split-window   -h -t "$PANE_NVIM" -l $(( COLS * 35 / 100 )) -c "$DIR" -P -F '#{pane_id}')
   tmux split-window -v -t "$PANE_NVIM" -l $(( ROWS * 30 / 100 )) -c "$DIR"
