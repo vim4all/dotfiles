@@ -240,3 +240,6 @@ if [ -n "$SSH_CONNECTION" ] && [ -z "$TMUX" ] && [ -z "$DEV_NO_PICKER" ] && [ "$
    command -v fzf >/dev/null && command -v tmux >/dev/null; then
   bash ~/.config/i3/scripts/dev-picker.sh --tty
 fi
+
+# opencode (its installer appends to ~/.bashrc; kept here, home-independent)
+[ -d "$HOME/.opencode/bin" ] && PATH="$HOME/.opencode/bin:$PATH"
