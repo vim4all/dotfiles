@@ -22,7 +22,8 @@ done
 if [ "$DEPS" = 1 ]; then
   sudo apt install -y stow git direnv i3 rofi dunst feh picom flameshot xss-lock i3lock \
     network-manager-gnome pulseaudio-utils dex xbacklight autorandr rclone \
-    tmux fzf fd-find bat ripgrep zoxide vifm xclip python3
+    tmux fzf fd-find bat ripgrep zoxide vifm xclip python3 \
+    bear   # bear: compile_commands.json for Makefile projects (clangd)
   if ! command -v kitty >/dev/null; then
     curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n
     mkdir -p ~/.local/bin && ln -sf ~/.local/kitty.app/bin/kitty ~/.local/kitty.app/bin/kitten ~/.local/bin/
@@ -31,6 +32,12 @@ if [ "$DEPS" = 1 ]; then
     v=$(curl -fsSL https://api.github.com/repos/dandavison/delta/releases/latest | sed -n 's/.*"tag_name": "\(.*\)".*/\1/p')
     curl -fsSL "https://github.com/dandavison/delta/releases/download/$v/delta-$v-x86_64-unknown-linux-musl.tar.gz" \
       | tar xz -C /tmp && install -m755 "/tmp/delta-$v-x86_64-unknown-linux-musl/delta" ~/.local/bin/delta
+  fi
+  if ! command -v gitleaks >/dev/null; then   # pre-commit secret scan; not in 22.04's apt
+    v=$(curl -fsSL https://api.github.com/repos/gitleaks/gitleaks/releases/latest | sed -n 's/.*"tag_name": "v\(.*\)".*/\1/p')
+    mkdir -p ~/.local/bin
+    curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v$v/gitleaks_${v}_linux_x64.tar.gz" \
+      | tar xz -C ~/.local/bin gitleaks
   fi
   [ -d ~/.tmux/plugins/tpm ] || git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 fi
@@ -51,7 +58,23 @@ rm -f /tmp/stow-check.$$
 stow --restow --target="$HOME" "${PACKAGES[@]}"
 echo "linked: ${PACKAGES[*]}"
 
+# Pre-commit hook (gitleaks + private patterns) for this repo and the nvim submodule
+git config core.hooksPath .githooks
+git -C nvim/.config/nvim config core.hooksPath "$PWD/.githooks"
+
 # Local files that are not in the (public) repo
+PRIV="${XDG_CONFIG_HOME:-$HOME/.config}/private-patterns"
+if [ ! -f "$PRIV" ]; then
+  mkdir -p "$(dirname "$PRIV")"
+  cat > "$PRIV" <<'PRIVEOF'
+# Regexes (grep -E, case-insensitive) that must never be committed to the public
+# dotfiles; checked by .githooks/pre-commit. One per line, e.g.:
+# you@company\.com
+# Firstname Lastname
+# 100\.12\.34\.56
+PRIVEOF
+  echo "created $PRIV — add your e-mail, name, IPs there"
+fi
 VC=vimcommander/.config/VimCommander
 if [ -f "$VC/config.example.json" ] && [ ! -f "$VC/config.json" ]; then
   sed "s|@HOME@|$HOME|g" "$VC/config.example.json" > "$VC/config.json"

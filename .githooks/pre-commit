@@ -1,0 +1,30 @@
+#!/bin/bash
+# Block commits that would publish secrets or personal data (this repo is public).
+#   1. gitleaks: API keys, tokens, private keys …
+#   2. ~/.config/private-patterns: your own regexes, one per line (e-mail,
+#      real name, home IPs …). Kept outside the repo so the patterns don't leak.
+# Bypass once (you checked it is fine): git commit --no-verify
+# Used by ~/dotfiles and the nvim submodule (core.hooksPath, set by install.sh).
+set -uo pipefail
+fail=0
+
+if command -v gitleaks >/dev/null; then
+  gitleaks git --pre-commit --staged --redact --no-banner --log-level warn || fail=1
+else
+  echo "pre-commit: gitleaks not installed, secret scan skipped (./install.sh --deps)" >&2
+fi
+
+pat="${XDG_CONFIG_HOME:-$HOME/.config}/private-patterns"
+if [ -s "$pat" ]; then
+  # only added lines, comments and blank lines in the pattern file ignored
+  hits=$(git diff --cached -U0 --no-color --no-ext-diff \
+    | grep -E '^\+' | grep -vE '^\+\+\+ ' \
+    | grep -inEf <(grep -vE '^\s*(#|$)' "$pat"))
+  if [ -n "$hits" ]; then
+    echo "pre-commit: staged changes match $pat:" >&2
+    git diff --cached --name-only -G"$(grep -vE '^\s*(#|$)' "$pat" | paste -sd'|')" -i | sed 's/^/  /' >&2
+    fail=1
+  fi
+fi
+
+[ "$fail" = 0 ] || { echo "pre-commit: commit blocked (git commit --no-verify to override)" >&2; exit 1; }

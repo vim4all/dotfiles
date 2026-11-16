@@ -561,6 +561,11 @@ This repo is public, so anything personal lives next to it, not in it:
 | `~/.vnc/passwd` | VNC password | `vncpasswd` |
 | `~/.claude/.credentials.json`, `~/.claude.json`, history | Claude login and sessions | Claude Code |
 | `**/.claude/settings.local.json` | per-project Claude permissions | Claude Code (git-ignored) |
+| `~/.config/private-patterns` | regexes that must never be committed (e-mail, name, IPs) | `install.sh` (commented template) |
+
+A pre-commit hook (`.githooks/pre-commit`, used here and in the nvim submodule) blocks a commit
+when [gitleaks](https://github.com/gitleaks/gitleaks) finds a secret or a staged line matches
+`~/.config/private-patterns`. `git commit --no-verify` overrides it once.
 
 Changed a VimCommander setting worth keeping? Copy it into `config.example.json`
 (use `@HOME@` for your home folder). Before pushing, `git diff --cached` is the last check
